@@ -216,19 +216,24 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
         activeOpacity={0.8}
       >
         <View style={styles.imageContainer}>
-          {(item.images && item.images.length > 0) || item.image ? (() => {
-            const imgSrc = (item.images && item.images.length > 0) ? item.images[0] : item.image;
-            return (
+          {(() => {
+            // 1st priority: local asset from TEMPLE_IMAGE_MAP
+            const localImg = getTemplateLocalImage(item.name);
+            // 2nd priority: remote URL from JSON
+            const remoteUrl = item.image || (item.images && item.images.length > 0 ? item.images[0] : null);
+            const imgSrc = localImg || remoteUrl;
+
+            return imgSrc ? (
               <Image
                 source={typeof imgSrc === 'number' ? imgSrc : { uri: imgSrc }}
                 style={styles.imageCover}
                 resizeMode="cover"
                 onError={() => { }}
               />
+            ) : (
+              <View style={styles.fallbackImage} />
             );
-          })() : (
-            <View style={styles.fallbackImage} />
-          )}
+          })()}
           <View style={styles.ratingBadge}>
             <Text style={styles.rating}>⭐ {item.rating?.toFixed(1) || 'N/A'}</Text>
           </View>
