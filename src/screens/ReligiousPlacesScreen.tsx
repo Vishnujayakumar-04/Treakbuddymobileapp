@@ -24,6 +24,36 @@ import { FilterPills } from '../components/ui';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
+// Local image map for all temples/churches that have assets in assets/assets/temple/
+const TEMPLE_IMAGE_MAP: Record<string, any> = {
+  // Hindu Temples
+  'manakula vinayagar temple': require('../../assets/assets/temple/Arulmigu-Manakula-Vinayagar-Temple-Pondicherry-A-Divine-Blend-of-History-Culture-Devotion.jpg'),
+  'arulmigu manakula vinayagar temple': require('../../assets/assets/temple/Arulmigu-Manakula-Vinayagar-Temple-Pondicherry-A-Divine-Blend-of-History-Culture-Devotion.jpg'),
+  'varadaraja perumal temple': require('../../assets/assets/temple/varadaraja-temple-pondi.jpg'),
+  'kamakshi amman temple': require('../../assets/assets/temple/Kamakshmi amman temple.jpg'),
+  'vedapureeswarar temple': require('../../assets/assets/temple/150397172Vedapureeswarar-temple.jpg'),
+  'arulmigu kanniga parameswari temple': require('../../assets/assets/temple/sri-kanniga-parameswari-temple-puducherry-tourism-entry-fee-timings-holidays-reviews-header.jpg'),
+  'kanniga parameswari temple': require('../../assets/assets/temple/KANNIGA PARAMESWARI TEMPLE.jpg'),
+
+  // Churches
+  'sacred heart basilica': require('../../assets/assets/temple/basilica-of-the-sacred-heart-of-jesus-puducherry-tourism-entry-fee-timings-holidays-reviews-header.jpg'),
+  'basilica of the sacred heart of jesus': require('../../assets/assets/temple/Puducherry_Sacred_Heart_Cathedral_2.jpg'),
+  'immaculate conception cathedral': require('../../assets/assets/temple/immaculate-conception-cathedral-puducherry-entry-fee-timings-holidays-reviews-header.jpg'),
+  'our lady of angels church': require('../../assets/assets/temple/our lady of angle church.jpg'),
+  "st. andrew's church": require("../../assets/assets/temple/st andrew's church.jpg"),
+  "st andrew's church": require("../../assets/assets/temple/st andrew's church.jpg"),
+
+  // Spiritual
+  'sri aurobindo ashram': require('../../assets/assets/temple/sri aurobindo ashram.jpg'),
+};
+
+// Helper: look up a local image from TEMPLE_IMAGE_MAP by name
+const getTemplateLocalImage = (name: string): any | null => {
+  const key = name.toLowerCase().trim();
+  return TEMPLE_IMAGE_MAP[key] || null;
+};
+
+
 type Language = 'English' | 'Tamil' | 'Hindi' | 'Telugu' | 'Malayalam' | 'Kannada' | 'French';
 
 interface ReligiousPlacesScreenProps {
@@ -88,8 +118,12 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
     setFilteredPlaces(filtered);
   }, [selectedReligion, selectedSubType, places]);
 
-  // Helper: look up local image from places.ts by name match
+  // Helper: look up local image - first try TEMPLE_IMAGE_MAP, then places.ts
   const getLocalImage = (placeName: string) => {
+    // 1st priority: direct map from known local temple assets
+    const mapped = getTemplateLocalImage(placeName);
+    if (mapped) return mapped;
+    // 2nd priority: places.ts data (for beaches, heritage, etc.)
     const match = PLACES_DATA.find(
       p => p.name.toLowerCase().trim() === placeName.toLowerCase().trim()
     );
@@ -98,7 +132,7 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
 
   const handlePlacePress = (place: ReligionPlace) => {
     const displayName = getDisplayName(place);
-    // Use local image from places.ts if available, else fall back to JSON URL
+    // Use local image (maps/places.ts) if available, else fall back to JSON URL
     const localImage = getLocalImage(place.name) || getLocalImage(displayName);
     const fallbackImage = place.image || (place.images && place.images.length > 0 ? place.images[0] : '');
 
