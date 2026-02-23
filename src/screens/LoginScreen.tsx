@@ -78,20 +78,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
-      {/* Hero Background Image */}
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.Image
-          source={{ uri: BP_IMAGE }}
-          style={[styles.backgroundImage, floatingStyle]}
-          resizeMode="cover"
-        />
-        {/* Dark overlay for contrast */}
-        <LinearGradient
-          colors={['rgba(15, 23, 42, 0.4)', 'rgba(15, 23, 42, 0.95)', '#0f172a']}
-          style={StyleSheet.absoluteFill}
-          locations={[0, 0.4, 0.7]}
-        />
-      </View>
+      {/* Removed Background Image & Overlay per user request */}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -110,12 +97,12 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                 <Feather name="arrow-left" size={24} color="#fff" />
               </View>
             </TouchableOpacity>
-            <Text style={styles.welcomeText}>Welcome{'\n'}Back</Text>
+            <Text style={styles.welcomeText} numberOfLines={1} adjustsFontSizeToFit>Welcome Back</Text>
             <Text style={styles.subtitleText}>Sign in to continue your journey through Puducherry</Text>
           </Animated.View>
 
           {/* Glassmorphism Form Card */}
-          <Animated.View entering={FadeInUp.delay(400).duration(800).springify()}>
+          <Animated.View entering={FadeInUp.delay(300).duration(800).springify()} style={{ marginTop: 24 }}>
             <View style={[styles.glassCard, { backgroundColor: 'rgba(15, 23, 42, 0.7)' }]}>
               <View style={styles.glassInner}>
 
@@ -226,17 +213,18 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: STATUSBAR_HEIGHT + spacing.xl,
+    paddingTop: STATUSBAR_HEIGHT + 32, // increased a bit so it's not too high
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
+    justifyContent: 'center', // changed from space-between so they group together
   },
   headerSection: {
-    marginBottom: 40,
-    marginTop: 20,
-    paddingHorizontal: 8,
+    marginBottom: 0,
+    marginTop: 8,
+    paddingHorizontal: 4,
   },
   backButton: {
-    marginBottom: 30,
+    marginBottom: 16,
     alignSelf: 'flex-start',
     borderRadius: 20,
     overflow: 'hidden',
@@ -249,18 +237,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
   welcomeText: {
-    fontSize: 42,
+    fontSize: 34,
     fontWeight: '900',
     color: '#fff',
-    marginBottom: 12,
-    lineHeight: 48,
+    marginBottom: 10,
+    lineHeight: 42,
     letterSpacing: -1,
   },
   subtitleText: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
-    lineHeight: 24,
-    maxWidth: '80%',
+    lineHeight: 22,
+    maxWidth: '90%',
   },
   glassCard: {
     borderRadius: radius.xxl,

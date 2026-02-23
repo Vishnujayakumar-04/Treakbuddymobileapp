@@ -9,8 +9,20 @@ export const uploadProfilePhoto = async (
   imageUri: string
 ): Promise<string> => {
   try {
-    const response = await fetch(imageUri);
-    const blob = await response.blob();
+    const blob: Blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.error('XHR Error:', e);
+        reject(new TypeError('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', imageUri, true);
+      xhr.send(null);
+    });
+
     const storageRef = ref(storage, `profilePhotos/${userId}/${Date.now()}.jpg`);
     const uploadTask = uploadBytesResumable(storageRef, blob);
 

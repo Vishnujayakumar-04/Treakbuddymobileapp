@@ -70,10 +70,15 @@ export default function TripPlannerOutput({ route, navigation }: TripPlannerOutp
         }))
       };
 
-      await addDoc(collection(db, 'trips'), tripToSave);
+      await addDoc(collection(db, 'users', user.uid, 'trips'), tripToSave);
 
       setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
+      setTimeout(() => {
+        setIsSaved(false);
+        if (navigation) {
+          navigation.navigate('MyTrips');
+        }
+      }, 2000);
     } catch (error) {
       console.error('Error saving trip:', error);
       Alert.alert('Error', 'Failed to save the itinerary. Please try again later.');

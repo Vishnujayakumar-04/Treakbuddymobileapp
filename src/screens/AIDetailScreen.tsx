@@ -130,7 +130,9 @@ export default function AIDetailScreen({ route, navigation }: AIDetailScreenProp
             </View>
             <Text style={styles.placeName}>{relatedPlace.name}</Text>
             <Text style={styles.placeDescription} numberOfLines={2}>
-              {relatedPlace.description}
+              {typeof relatedPlace.description === 'string'
+                ? relatedPlace.description
+                : (relatedPlace.description as any)?.specialFeatures ?? JSON.stringify(relatedPlace.description)}
             </Text>
             <View style={styles.placeInfo}>
               <View style={styles.placeInfoRow}>

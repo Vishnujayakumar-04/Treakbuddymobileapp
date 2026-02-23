@@ -63,7 +63,7 @@ export interface ReligionPlace {
  */
 export async function getAllReligionData(): Promise<ReligionPlace[]> {
   try {
-    const data = templesData as ReligionPlace[];
+    const data = templesData as unknown as ReligionPlace[];
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.warn('Failed to load temples data:', error);
@@ -76,7 +76,7 @@ export async function getAllReligionData(): Promise<ReligionPlace[]> {
  */
 export function getSubTypesForReligion(religion: ReligionType): SubType[] {
   try {
-    const data = templesData as ReligionPlace[];
+    const data = templesData as unknown as ReligionPlace[];
     const subTypes = data.filter(p => p.religion === religion).map(p => p.subType);
     return Array.from(new Set(subTypes)).filter(Boolean);
   } catch (error) {

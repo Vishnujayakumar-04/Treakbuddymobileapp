@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { spacing, radius } from '../../theme/spacing';
-import { uploadProfilePhoto } from '../../utils/storageService';
 import { updateUserProfile } from '../../utils/firestore';
 
 interface EditProfileModalProps {
@@ -72,9 +72,10 @@ export function EditProfileModal({
         let finalPhotoUrl = currentPhotoUrl;
 
         try {
-            // 1. If photo changed, upload and get new URL
+            // 1. If photo changed, bypass Firebase Storage and save strictly to Local Storage
             if (photoUri && photoUri !== currentPhotoUrl) {
-                finalPhotoUrl = await uploadProfilePhoto(userId, photoUri);
+                await AsyncStorage.setItem(`profilePhoto_${userId}`, photoUri);
+                finalPhotoUrl = photoUri;
             }
 
             const updates: any = { name: name.trim() };
@@ -109,7 +110,7 @@ export function EditProfileModal({
                         <Text style={[styles.modalTitle, isDark ? styles.textDark : styles.textLight]}>Edit Profile</Text>
                         <TouchableOpacity onPress={handleSave} disabled={isUploading}>
                             {isUploading ? (
-                                <ActivityIndicator size="small" color="#0ea5e9" />
+                                <Text style={[styles.saveText, { opacity: 0.6 }]}>Saving...</Text>
                             ) : (
                                 <Text style={styles.saveText}>Save</Text>
                             )}
@@ -129,7 +130,7 @@ export function EditProfileModal({
                                 <Ionicons name="camera" size={16} color="#FFF" />
                             </View>
                         </TouchableOpacity>
-                        <Text style={styles.changePhotoText}>Change Profile Photo</Text>
+                        <Text style={styles.changePhotoText}>Save Photo</Text>
                     </View>
 
                     <View style={styles.formSection}>

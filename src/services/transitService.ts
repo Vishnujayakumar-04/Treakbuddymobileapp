@@ -1,44 +1,10 @@
-import { collection, getDocs, query, where, QueryConstraint } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firestore';
+import { TRANSIT_DATA, TransitItem as LocalTransitItem } from '../data/transitData';
 
-export interface TransitItem {
-    id: string;
-    category: 'rentals' | 'cabs' | 'bus' | 'train';
-    subCategory?: string;
-    type?: string;
-    name: string;
-    description?: string;
-    price?: string;
-    availability?: string;
-    image?: string;
-    rating?: number;
-    contact?: string;
-    location?: string;
-    from?: string;
-    to?: string;
-    via?: string[];
-    frequency?: string;
-    duration?: string;
-    stops?: number;
-    classes?: string[];
-    departure?: string;
-    arrival?: string;
-    number?: string;
-    baseRate?: string;
-    perKm?: string;
-    bookingMethod?: string;
-    bookingUrl?: string;
-    bookingUrls?: { name: string; url: string }[];
-    tips?: string;
-    specialty?: string;
-    code?: string;
-    address?: string;
-    facilities?: string[];
-    mapUrl?: string;
-    openHours?: string;
-}
+export type TransitItem = LocalTransitItem;
 
-// Simple in-memory cache to prevent redundant Firestore reads
+// Simple in-memory cache
 const CACHE: Record<string, TransitItem[]> = {};
 
 export async function getTransitItems(category: string): Promise<TransitItem[]> {
@@ -53,16 +19,28 @@ export async function getTransitItems(category: string): Promise<TransitItem[]> 
 
         const snapshot = await getDocs(q);
 
-        const data = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        } as TransitItem));
+        let data: TransitItem[] = [];
+
+        if (!snapshot.empty) {
+            data = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            } as TransitItem));
+        } else {
+            // Fallback to local hardcoded parity data if Firebase is empty/offline
+            console.log(`Firebase empty for ${category}, falling back to local local data.`);
+            data = TRANSIT_DATA.filter(item => item.category === category) || [];
+        }
 
         // Store in cache
         CACHE[category] = data;
         return data;
     } catch (error) {
-        console.error(`Error fetching transit category [${category}]:`, error);
-        throw error;
+        console.warn(`Error fetching transit category [${category}] from Firebase, using local data:`, error);
+
+        // Final fallback to local data on complete failure (offline)
+        const localFallback = TRANSIT_DATA.filter(item => item.category === category) || [];
+        CACHE[category] = localFallback;
+        return localFallback;
     }
 }

@@ -190,6 +190,7 @@ export const getUserTrips = async (userId: string): Promise<StoredTrip[]> => {
       const data = doc.data();
       return {
         ...data,
+        id: doc.id,
         createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
       } as StoredTrip;
     });
@@ -247,6 +248,7 @@ export const subscribeToUserTrips = (
           const data = doc.data();
           return {
             ...data,
+            id: doc.id,
             createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
           } as StoredTrip;
         });

@@ -10,9 +10,12 @@ import {
   Image,
   TouchableOpacity,
   Switch,
+  Platform,
+  StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
@@ -23,64 +26,30 @@ import {
 } from '../utils/firestore';
 import { StoredTrip, StoredFavorite } from '../utils/storage';
 import { spacing, radius } from '../theme/spacing';
-
-import { ProfileHeader } from '../components/profile/ProfileHeader';
 import { EditProfileModal } from '../components/profile/EditProfileModal';
+
+const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
 interface ProfileScreenProps {
   navigation?: any;
 }
 
-// A beautiful tropical island aerial shot matching the reference
-const PROFILE_BG_IMAGE = 'https://images.unsplash.com/photo-1548625361-ec853158cabb?w=800&q=80';
-
 export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const { user, userProfile, signOut, refreshUserProfile } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
-  // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-
-  // Real-time Data States
   const [trips, setTrips] = useState<StoredTrip[]>([]);
   const [favorites, setFavorites] = useState<StoredFavorite[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-
-  // UI States
   const [refreshing, setRefreshing] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
 
-  // Initialize Animations
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        friction: 7,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnim, slideAnim]);
-
-  // Handle Real-time Data Listeners
   useEffect(() => {
     if (!user) return;
-
     const unsubTrips = subscribeToUserTrips(user.uid, setTrips);
     const unsubFavs = subscribeToFavorites(user.uid, setFavorites);
     const unsubHistory = subscribeToHistory(user.uid, setHistory);
-
-    return () => {
-      unsubTrips();
-      unsubFavs();
-      unsubHistory();
-    };
+    return () => { unsubTrips(); unsubFavs(); unsubHistory(); };
   }, [user]);
 
   const onRefresh = useCallback(() => {
@@ -95,132 +64,156 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     ]);
   };
 
-  if (!user || !userProfile) {
-    return null;
+  // Not signed in
+  if (!user) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <StatusBar translucent backgroundColor="transparent" barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <Ionicons name="person-circle-outline" size={80} color="#0891b2" />
+        <Text style={styles.guestTitle}>You're not signed in</Text>
+        <Text style={styles.guestSub}>Sign in to view your profile, saved places and trips.</Text>
+        <TouchableOpacity style={styles.signInBtn} onPress={() => navigation?.navigate('Login')}>
+          <Text style={styles.signInBtnText}>Sign In</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
-  // Personal Info Menu Items
-  const menuItems = [
-    { id: '1', icon: 'location-outline', title: 'My Address', onPress: () => { } },
-    { id: '2', icon: 'notifications-outline', title: 'Notification', onPress: () => { } },
-    { id: '3', icon: 'moon-outline', title: 'Dark Mode', isSwitch: true, switchValue: isDark, onSwitch: toggleTheme },
-    { id: '4', icon: 'globe-outline', title: 'Languages', onPress: () => { } },
-    { id: '5', icon: 'alert-circle-outline', title: 'Help and Support', onPress: () => { } },
-  ];
+  // Loading profile
+  if (!userProfile) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <ActivityIndicator size="large" color="#0891b2" />
+      </View>
+    );
+  }
+
+  const displayName = userProfile.name || user.email?.split('@')[0] || 'Traveler';
+  const avatarLetter = displayName.charAt(0).toUpperCase();
 
   return (
     <View style={styles.container}>
-      {/* Immersive Background */}
-      <View style={StyleSheet.absoluteFill}>
-        <Image
-          source={{ uri: PROFILE_BG_IMAGE }}
-          style={styles.bgImage}
-          resizeMode="cover"
-        />
-        {/* The overlay gradient creates the soft teal/cyan fog over the lower areas */}
-        <LinearGradient
-          colors={
-            isDark
-              ? ['rgba(15,23,42,0.3)', 'rgba(15, 23, 42, 0.95)', '#0f172a']
-              : ['rgba(189,235,229,0.3)', 'rgba(213,241,219,0.95)', '#e6f7ef']
-          }
-          style={StyleSheet.absoluteFill}
-          locations={[0, 0.4, 0.8]}
-        />
-      </View>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={isDark ? '#FFF' : '#0a4a4b'}
-          />
-        }
+      {/* Gradient Header */}
+      <LinearGradient
+        colors={['#0c4a6e', '#0891b2', '#06b6d4']}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       >
-        <ProfileHeader
-          name={userProfile.name || 'User'}
-          email={userProfile.email}
-          photoUrl={userProfile.profilePhotoUrl || null}
-          fadeAnim={fadeAnim}
-          slideAnim={slideAnim}
-          onEditPress={() => setEditModalVisible(true)}
-        />
-
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-
-          {/* Saved Palace Section */}
-          <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, { color: isDark ? '#FFF' : '#0a4a4b' }]}>
-              Saved Palace
-            </Text>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.sm }}
+        <View style={{ paddingTop: STATUSBAR_HEIGHT + 12 }}>
+          {/* Avatar */}
+          <View style={styles.avatarRow}>
+            <TouchableOpacity
+              onPress={() => setEditModalVisible(true)}
+              style={styles.avatarContainer}
             >
-              {favorites.length > 0 ? (
-                favorites.map((fav) => (
-                  <TouchableOpacity
-                    key={fav.placeId}
-                    style={styles.savedCard}
-                    onPress={() => navigation?.navigate('PlaceDetails', { id: fav.placeId, name: fav.place?.name })}
-                  >
-                    <Image source={{ uri: fav.place?.image || 'https://images.unsplash.com/photo-1548625361-ec853158cabb?q=80' }} style={styles.savedImage} />
-                  </TouchableOpacity>
-                ))
+              {userProfile.profilePhotoUrl ? (
+                <Image
+                  source={{ uri: userProfile.profilePhotoUrl }}
+                  style={styles.avatarImage}
+                />
               ) : (
-                [1, 2, 3].map((_, i) => (
-                  <View key={i} style={styles.savedPlaceholder}>
-                    <Ionicons name="image-outline" size={24} color="#0a4a4b" opacity={0.3} />
-                  </View>
-                ))
-              )}
-            </ScrollView>
-          </View>
-
-          {/* Personal Info Section */}
-          <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, { color: isDark ? '#FFF' : '#0a4a4b' }]}>
-              Personal Info
-            </Text>
-
-            <View style={styles.menuList}>
-              {menuItems.map((item, index) => (
-                <View key={item.id} style={[
-                  styles.menuItemRow,
-                  index < menuItems.length - 1 && styles.menuItemBorder
-                ]}>
-                  {item.isSwitch ? (
-                    <View style={styles.menuItemContent}>
-                      <Ionicons name={item.icon as any} size={22} color={isDark ? '#FFF' : '#0a4a4b'} style={styles.menuIcon} />
-                      <Text style={[styles.menuTitleText, { color: isDark ? '#cbd5e1' : '#1e293b' }]}>{item.title}</Text>
-                      <Switch
-                        value={item.switchValue}
-                        onValueChange={item.onSwitch}
-                        trackColor={{ false: '#cbd5e1', true: '#0ea5e9' }}
-                        thumbColor="#ffffff"
-                      />
-                    </View>
-                  ) : (
-                    <TouchableOpacity style={styles.menuItemContent} onPress={item.onPress}>
-                      <Ionicons name={item.icon as any} size={22} color={isDark ? '#FFF' : '#0a4a4b'} style={styles.menuIcon} />
-                      <Text style={[styles.menuTitleText, { color: isDark ? '#cbd5e1' : '#1e293b' }]}>{item.title}</Text>
-                    </TouchableOpacity>
-                  )}
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarLetter}>{avatarLetter}</Text>
                 </View>
-              ))}
+              )}
+              <View style={styles.editBadge}>
+                <Feather name="edit-2" size={10} color="#fff" />
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>{displayName}</Text>
+              <Text style={styles.userEmail}>{userProfile.email}</Text>
             </View>
           </View>
 
-          {/* Logout Button */}
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
+          {/* Stats Row */}
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{trips.length}</Text>
+              <Text style={styles.statLabel}>Trips</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{favorites.length}</Text>
+              <Text style={styles.statLabel}>Saved</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{history.length}</Text>
+              <Text style={styles.statLabel}>Visited</Text>
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
 
-        </Animated.View>
+      <ScrollView
+        style={styles.body}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0891b2" />}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        {/* Saved Places */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📍 Saved Places</Text>
+          {favorites.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingVertical: 8 }}>
+              {favorites.map((fav) => (
+                <TouchableOpacity
+                  key={fav.placeId}
+                  style={styles.favCard}
+                  onPress={() => navigation?.navigate('PlaceDetails', { id: fav.placeId })}
+                >
+                  {fav.place?.image ? (
+                    <Image source={{ uri: fav.place.image }} style={styles.favImage} />
+                  ) : (
+                    <View style={[styles.favImage, { backgroundColor: '#e0f2fe', alignItems: 'center', justifyContent: 'center' }]}>
+                      <Ionicons name="image-outline" size={24} color="#0891b2" />
+                    </View>
+                  )}
+                  <Text style={styles.favName} numberOfLines={1}>{fav.place?.name || 'Place'}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <View style={styles.emptyBox}>
+              <Ionicons name="heart-outline" size={32} color="#cbd5e1" />
+              <Text style={styles.emptyText}>No saved places yet.{'\n'}Tap ♥ on any place to save it.</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>⚙️ Settings</Text>
+          <View style={styles.menuList}>
+            <TouchableOpacity style={styles.menuRow} onPress={() => setEditModalVisible(true)}>
+              <View style={styles.menuIcon}><Ionicons name="person-outline" size={20} color="#0891b2" /></View>
+              <Text style={styles.menuText}>Edit Profile</Text>
+              <Feather name="chevron-right" size={18} color="#94a3b8" />
+            </TouchableOpacity>
+            <View style={[styles.menuRow, { borderBottomWidth: 0 }]}>
+              <View style={styles.menuIcon}><Ionicons name="moon-outline" size={20} color="#0891b2" /></View>
+              <Text style={styles.menuText}>Dark Mode</Text>
+              <Switch
+                value={isDark}
+                onValueChange={toggleTheme}
+                trackColor={{ false: '#e2e8f0', true: '#0891b2' }}
+                thumbColor="#fff"
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Logout */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Feather name="log-out" size={18} color="#ef4444" />
+          <Text style={styles.logoutText}>Sign Out</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <EditProfileModal
@@ -240,77 +233,217 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7ef',
+    backgroundColor: '#f8fafc',
   },
-  bgImage: {
-    width: '100%',
-    height: 400,
-    opacity: 0.8,
+  header: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
-  sectionContainer: {
-    marginBottom: spacing.xxl,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  savedCard: {
-    width: 110,
-    height: 110,
-    borderRadius: 24,
-    marginRight: spacing.md,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  savedImage: {
-    width: '100%',
-    height: '100%',
-  },
-  savedPlaceholder: {
-    width: 110,
-    height: 110,
-    borderRadius: 24,
-    backgroundColor: 'rgba(10, 74, 75, 0.1)',
-    marginRight: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuList: {
-    paddingHorizontal: spacing.xl,
-  },
-  menuItemRow: {
-    paddingVertical: spacing.md,
-  },
-  menuItemBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(10, 74, 75, 0.1)',
-  },
-  menuItemContent: {
+  avatarRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginRight: spacing.md,
+  },
+  avatarImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.6)',
+  },
+  avatarPlaceholder: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  avatarLetter: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#0369a1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#fff',
+    marginBottom: 2,
+  },
+  userEmail: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.lg,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#fff',
+  },
+  statLabel: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    marginHorizontal: 8,
+  },
+  body: {
+    flex: 1,
+    marginTop: 16,
+  },
+  section: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 12,
+  },
+  favCard: {
+    width: 96,
+    alignItems: 'center',
+  },
+  favImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    marginBottom: 6,
+  },
+  favName: {
+    fontSize: 11,
+    color: '#475569',
+    fontWeight: '600',
+    textAlign: 'center',
+    width: 88,
+  },
+  emptyBox: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+  emptyText: {
+    fontSize: 13,
+    color: '#94a3b8',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  menuList: {
+    gap: 0,
+  },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
   menuIcon: {
-    marginRight: spacing.md,
-    opacity: 0.8,
-  },
-  menuTitleText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  logoutButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#e0f2fe',
     alignItems: 'center',
-    paddingVertical: spacing.lg,
-    marginBottom: 60,
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  menuText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginTop: 4,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#fecaca',
   },
   logoutText: {
-    color: '#e11d48', // Red color for logout
+    color: '#ef4444',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  // Guest state
+  guestTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  guestSub: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    paddingHorizontal: 32,
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  signInBtn: {
+    backgroundColor: '#0891b2',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  signInBtnText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: '700',
   },

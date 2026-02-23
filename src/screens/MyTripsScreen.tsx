@@ -188,7 +188,11 @@ export default function MyTripsScreen({ navigation }: { navigation?: any }) {
                         </View>
                     ) : (
                         <View style={styles.listContainer}>
-                            {trips.map((trip, idx) => renderTripCard(trip, idx))}
+                            {trips.map((trip, idx) => (
+                                <React.Fragment key={trip.id || `trip-${idx}`}>
+                                    {renderTripCard(trip, idx)}
+                                </React.Fragment>
+                            ))}
                         </View>
                     )}
                 </ScrollView>

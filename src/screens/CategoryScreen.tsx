@@ -18,6 +18,8 @@ import { addVisitedCategory } from '../utils/storage';
 import { spacing, radius } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { shadows } from '../theme/shadows';
+import { getCategoryImage } from '../data/categoryImages';
+
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
@@ -34,14 +36,14 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const category = route?.params?.category || 'beaches';
-  
+
   // Animation for header
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const headerTranslateY = useRef(new Animated.Value(-20)).current;
 
   useEffect(() => {
     let isMounted = true;
-    
+
     // Animate header entrance
     Animated.parallel([
       Animated.timing(headerOpacity, {
@@ -56,7 +58,7 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
         useNativeDriver: true,
       }),
     ]).start();
-    
+
     // Load category data
     const loadData = async () => {
       setLoading(true);
@@ -72,18 +74,18 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
         }
       } finally {
         if (isMounted) {
-        setLoading(false);
+          setLoading(false);
         }
       }
     };
-    
+
     loadData();
-    
+
     // Track visited category for AI recommendations
     if (category) {
-      addVisitedCategory(category).catch(() => {});
+      addVisitedCategory(category).catch(() => { });
     }
-    
+
     return () => {
       isMounted = false;
     };
@@ -97,7 +99,7 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
   const AnimatedPlaceCard = ({ item, index }: { item: Place; index: number }) => {
     const cardOpacity = useRef(new Animated.Value(0)).current;
     const cardTranslateY = useRef(new Animated.Value(30)).current;
-    
+
     useEffect(() => {
       Animated.parallel([
         Animated.timing(cardOpacity, {
@@ -115,9 +117,9 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
         }),
       ]).start();
     }, []);
-    
+
     if (!item) return null;
-    
+
     return (
       <Animated.View
         style={{
@@ -130,40 +132,47 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
           onPress={() => handlePlacePress(item)}
           activeOpacity={0.8}
         >
-      <View style={styles.imageContainer}>
-        {item.image ? (
-            <Image 
-              source={{ uri: item.image }} 
-              style={styles.imageCover} 
-              resizeMode="cover"
-              onError={() => {}}
-            />
-        ) : (
-          <View style={styles.fallbackImage} />
-        )}
-        <View style={styles.ratingBadge}>
-            <Text style={styles.rating}>⭐ {item.rating ?? 0}</Text>
-        </View>
-      </View>
+          <View style={styles.imageContainer}>
+            {item.image ? (
+              <Image
+                source={{ uri: item.image }}
+                style={styles.imageCover}
+                resizeMode="cover"
+                onError={() => { }}
+                defaultSource={getCategoryImage(category)}
+              />
+            ) : (
+              <Image
+                source={getCategoryImage(category)}
+                style={styles.imageCover}
+                resizeMode="cover"
+              />
+            )}
+            <View style={styles.ratingBadge}>
+              <Text style={styles.rating}>⭐ {item.rating ?? 0}</Text>
+            </View>
+          </View>
 
-      <View style={styles.cardContent}>
-        <Text style={styles.placeName} numberOfLines={2}>
-            {item.name || 'Unknown Place'}
-        </Text>
-        <Text style={styles.description} numberOfLines={2}>
-            {item.description || 'No description available'}
-        </Text>
+          <View style={styles.cardContent}>
+            <Text style={styles.placeName} numberOfLines={2}>
+              {item.name || 'Unknown Place'}
+            </Text>
+            <Text style={styles.description} numberOfLines={2}>
+              {typeof item.description === 'string'
+                ? (item.description || 'No description available')
+                : 'No description available'}
+            </Text>
 
-        <View style={styles.infoRow}>
-          <LocalOfferIcon size={18} color="#666666" />
-            <Text style={[styles.infoText, { marginLeft: spacing.sm }]}>{item.entryFee || 'Free'}</Text>
-        </View>
+            <View style={styles.infoRow}>
+              <LocalOfferIcon size={18} color="#666666" />
+              <Text style={[styles.infoText, { marginLeft: spacing.sm }]}>{item.entryFee || 'Free'}</Text>
+            </View>
 
-        <View style={styles.infoRow}>
-          <AccessTimeIcon size={18} color="#666666" />
-            <Text style={[styles.infoText, { marginLeft: spacing.sm }]}>{item.opening || 'Check locally'}</Text>
-        </View>
-      </View>
+            <View style={styles.infoRow}>
+              <AccessTimeIcon size={18} color="#666666" />
+              <Text style={[styles.infoText, { marginLeft: spacing.sm }]}>{item.opening || 'Check locally'}</Text>
+            </View>
+          </View>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -187,7 +196,7 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.header,
           {
@@ -226,7 +235,7 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
           <Text style={styles.emptyText}>
             We're adding amazing {category} places for you.{'\n'}Check back soon!
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.emptyButton}
             onPress={() => navigation?.goBack()}
           >

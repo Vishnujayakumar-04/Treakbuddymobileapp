@@ -2,83 +2,112 @@
  * imageSearchService.ts — React Native Expo
  * ─────────────────────────────────────────────────────────────────────────────
  * Provides automatic image fetching for tourism places in the TrekBuddy Expo app.
- *
- * Sources (in priority order):
- *   1. Wikimedia Commons  — free, no API key, CORS-open
- *   2. Pexels API         — requires key (set PEXELS_API_KEY in app.config.js)
- *
- * Usage:
- *   import { fetchPlaceImages, initImageSearch } from '../services/imageSearchService';
- *
- *   // In App.tsx / _layout.tsx — call once at app startup:
- *   import AsyncStorage from '@react-native-async-storage/async-storage';
- *   initImageSearch(AsyncStorage);
- *
- *   // In any screen:
- *   const result = await fetchPlaceImages('Promenade Beach');
- *   console.log(result.images); // SharedImageResult[]
+ * Uses Wikimedia Commons (free, no API key) with Pexels fallback.
  */
 
-import {
-    searchImages,
-    setAsyncStorageAdapter,
-    SharedImageResult,
-    SharedSearchResult,
-} from '../../website/src/lib/admin/imageSearchShared';
-// ↑ Shared module. In production, copy imageSearchShared.ts into this folder
-//   (src/services/imageSearchShared.ts) and import from './imageSearchShared'
+// ─── Types ────────────────────────────────────────────────────────────────────
+export interface SharedImageResult {
+    url: string;
+    thumb: string;
+    thumbSmall?: string;
+    title?: string;
+    credit?: string;
+    license?: string;
+    source?: 'wikimedia' | 'pexels';
+}
 
-// ─── Types re-exported for convenience ───────────────────────────────────────
-export type { SharedImageResult, SharedSearchResult };
+export interface SharedSearchResult {
+    images: SharedImageResult[];
+    query: string;
+    source?: string;
+}
+
+// ─── Simple in-memory cache ───────────────────────────────────────────────────
+const memCache: Record<string, { result: SharedSearchResult; ts: number }> = {};
+const MEM_TTL_MS = 30 * 60 * 1000; // 30 min
+
+let asyncStorageAdapter: any = null;
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// Set your Pexels API key here (or load from Expo Constants / env)
-// Get a free key at: https://www.pexels.com/api/
 const PEXELS_API_KEY = process.env.EXPO_PUBLIC_PEXELS_API_KEY || '';
 const DEFAULT_LOCATION = 'Puducherry';
 
 // ─── Initialize (call once in App.tsx) ────────────────────────────────────────
-/**
- * Registers AsyncStorage for persistent cache across app sessions.
- * Call this once in your root layout / App.tsx before any fetchPlaceImages calls.
- *
- * @example
- * import AsyncStorage from '@react-native-async-storage/async-storage';
- * initImageSearch(AsyncStorage);
- */
 export function initImageSearch(asyncStorageInstance: any): void {
-    setAsyncStorageAdapter(asyncStorageInstance);
+    asyncStorageAdapter = asyncStorageInstance;
     console.log('[ImageSearch] Persistent cache initialized with AsyncStorage.');
 }
 
 // ─── Main fetch function ───────────────────────────────────────────────────────
-/**
- * Fetches real tourism images for a place.
- * Results are cached in memory (30 min) + AsyncStorage (2 hours).
- *
- * @param placeName  - e.g. "Promenade Beach"
- * @param location   - defaults to "Puducherry"
- * @param limit      - max images to return (default: 10)
- */
 export async function fetchPlaceImages(
     placeName: string,
     location: string = DEFAULT_LOCATION,
     limit = 10,
 ): Promise<SharedSearchResult> {
-    return searchImages({
-        placeName,
-        location,
-        limit,
-        pexelsApiKey: PEXELS_API_KEY || undefined,
-        useServerProxy: false,  // React Native: call APIs directly
-    });
+    const cacheKey = `img_${placeName}_${location}_${limit}`;
+
+    // Memory cache check
+    const cached = memCache[cacheKey];
+    if (cached && Date.now() - cached.ts < MEM_TTL_MS) {
+        return cached.result;
+    }
+
+    try {
+        // Try Wikimedia Commons first
+        const wikiResult = await fetchFromWikimedia(placeName, location, limit);
+        if (wikiResult.images.length > 0) {
+            memCache[cacheKey] = { result: wikiResult, ts: Date.now() };
+            return wikiResult;
+        }
+    } catch (_) { /* fall through to Pexels */ }
+
+    try {
+        if (PEXELS_API_KEY) {
+            const pexelsResult = await fetchFromPexels(placeName, location, limit);
+            memCache[cacheKey] = { result: pexelsResult, ts: Date.now() };
+            return pexelsResult;
+        }
+    } catch (_) { /* fall through to empty */ }
+
+    return { images: [], query: `${placeName} ${location}` };
 }
 
-// ─── Utility: pick best images for a screen ───────────────────────────────────
-/**
- * Returns { cover, gallery } from a SharedSearchResult.
- * Automatically picks the first image as cover and rest as gallery.
- */
+async function fetchFromWikimedia(placeName: string, location: string, limit: number): Promise<SharedSearchResult> {
+    const query = encodeURIComponent(`${placeName} ${location}`);
+    const url = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${query}&srnamespace=6&srlimit=${limit}&format=json&origin=*`;
+    const res = await fetch(url);
+    const json = await res.json();
+    const titles: string[] = (json.query?.search || []).map((s: any) => s.title);
+    const images: SharedImageResult[] = titles.slice(0, limit).map(title => {
+        const encoded = encodeURIComponent(title.replace('File:', ''));
+        return {
+            url: `https://commons.wikimedia.org/wiki/Special:FilePath/${encoded}`,
+            thumb: `https://commons.wikimedia.org/wiki/Special:FilePath/${encoded}?width=600`,
+            thumbSmall: `https://commons.wikimedia.org/wiki/Special:FilePath/${encoded}?width=200`,
+            title,
+            source: 'wikimedia' as const,
+        };
+    });
+    return { images, query: `${placeName} ${location}`, source: 'wikimedia' };
+}
+
+async function fetchFromPexels(placeName: string, location: string, limit: number): Promise<SharedSearchResult> {
+    const query = encodeURIComponent(`${placeName} ${location}`);
+    const res = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=${limit}`, {
+        headers: { Authorization: PEXELS_API_KEY },
+    });
+    const json = await res.json();
+    const images: SharedImageResult[] = (json.photos || []).map((p: any) => ({
+        url: p.src.large,
+        thumb: p.src.medium,
+        thumbSmall: p.src.small,
+        credit: p.photographer,
+        source: 'pexels' as const,
+    }));
+    return { images, query: `${placeName} ${location}`, source: 'pexels' };
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
 export function splitCoverAndGallery(result: SharedSearchResult): {
     cover: SharedImageResult | null;
     gallery: SharedImageResult[];
@@ -87,17 +116,10 @@ export function splitCoverAndGallery(result: SharedSearchResult): {
     return { cover, gallery: gallery.slice(0, 5) };
 }
 
-/**
- * Returns the best thumbnail URL for an image, with lazy/progressive loading support.
- * Prefers thumbSmall for list views, thumb for detail views.
- */
 export function getThumbUrl(img: SharedImageResult, size: 'small' | 'large' = 'large'): string {
     return size === 'small' ? (img.thumbSmall ?? img.thumb) : img.thumb;
 }
 
-/**
- * Generates attribution text for an image (Wikimedia / Pexels credit).
- */
 export function getAttribution(img: SharedImageResult): string {
     if (!img.credit) return '';
     const license = img.license ? ` (${img.license})` : '';

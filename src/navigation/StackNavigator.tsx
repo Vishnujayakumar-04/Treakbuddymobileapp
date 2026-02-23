@@ -33,6 +33,8 @@ import BusRouteDetailsScreen from "../screens/bus/BusRouteDetailsScreen";
 import InterCityBusScreen from "../screens/bus/InterCityBusScreen";
 import RoutePlannerScreen from "../screens/RoutePlannerScreen";
 import EventsScreen from "../screens/EventsScreen";
+import RentalDetailScreen from "../screens/transit/RentalDetailScreen";
+import TrainDetailScreen from "../screens/transit/TrainDetailScreen";
 import { useAuth } from "../context/AuthContext";
 
 const Stack = createStackNavigator();
@@ -352,6 +354,28 @@ export default function StackNavigator() {
           <Stack.Screen
             name="RoutePlanner"
             component={RoutePlannerScreen}
+          />
+          <Stack.Screen
+            name="RentalDetail"
+            component={RentalDetailScreen}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forModalPresentationIOS,
+              transitionSpec: {
+                open: { animation: 'timing', config: { duration: 350 } },
+                close: { animation: 'timing', config: { duration: 350 } },
+              },
+            }}
+          />
+          <Stack.Screen
+            name="TrainDetail"
+            component={TrainDetailScreen}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forModalPresentationIOS,
+              transitionSpec: {
+                open: { animation: 'timing', config: { duration: 350 } },
+                close: { animation: 'timing', config: { duration: 350 } },
+              },
+            }}
           />
         </>
       )}

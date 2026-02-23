@@ -111,8 +111,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
               {/* Label */}
               <View style={styles.labelContainer}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.label} numberOfLines={2}>
+                <View style={{ marginBottom: 6 }}>
+                  <Text style={styles.label} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8}>
                     {label}
                   </Text>
                   <View style={styles.underline} />
@@ -199,15 +199,15 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   labelContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
   },
   label: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '900',
     color: '#FFFFFF',
-    lineHeight: 24,
+    lineHeight: 22,
     marginBottom: 4,
   },
   underline: {

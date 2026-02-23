@@ -15,49 +15,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowBackIcon, LocationPinIcon, StarIcon } from '../components/icons';
 import { spacing, radius } from '../theme/spacing';
 import { typography } from '../theme/typography';
+import { PLACES_DATA } from '../data/places';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const FAMOUS_PLACES = {
-    historical: [
-        { name: 'French War Memorial', location: 'Goubert Avenue', image: 'https://images.unsplash.com/photo-1585159812596-fac104f2f069?w=800' },
-        { name: 'Aayi Mandapam', location: 'White Town', image: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800' },
-        { name: 'Bharathi Park', location: 'White Town', image: 'https://images.unsplash.com/photo-1569163139394-de4798aa62b0?w=800' },
-        { name: 'Arikamedu Archaeological Site', location: 'Arikamedu', image: 'https://images.unsplash.com/photo-1518012312832-96aea3c91144?w=800' },
-        { name: 'Kargil War Memorial', location: 'Shanmugha Vilasam', image: 'https://images.unsplash.com/photo-1552751072-4ac0c9c2b5c4?w=800' },
-        { name: 'Raj Niwas', location: 'White Town', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800' },
-    ],
-    temples: [
-        { name: 'Manakula Vinayagar Temple', location: 'White Town', image: 'https://images.unsplash.com/photo-1582443168850-6e1ea092647b?w=800' },
-        { name: 'Varadaraja Perumal Temple', location: 'Near French Consulate', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800' },
-        { name: 'Kamakshi Amman Temple', location: 'Near Beach', image: 'https://images.unsplash.com/photo-1609682448995-3e4cb7e5e4f8?w=800' },
-        { name: 'Vedapureeswarar Temple', location: 'Near Serenity Beach', image: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800' },
-        { name: 'Arulmigu Kanniga Parameswari Temple', location: 'Kuruchikuppam', image: 'https://images.unsplash.com/photo-1580533319007-5d61615dc6f7?w=800' },
-    ],
-    nature: [
-        { name: 'Paradise Beach', location: 'Chunnambar', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800' },
-        { name: 'Auroville Beach', location: 'Auroville', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800' },
-        { name: 'Serenity Beach', location: 'Auroville Road', image: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800' },
-        { name: 'Ousteri Lake & Wildlife Sanctuary', location: 'Ossudu', image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800' },
-        { name: 'Botanical Garden', location: 'Near Railway Station', image: 'https://images.unsplash.com/photo-1585581505402-85f3eebbddf8?w=800' },
-        { name: 'Pichavaram Mangrove Forest', location: 'Near Chidambaram', image: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800' },
-    ],
-    churches: [
-        { name: 'Basilica of the Sacred Heart of Jesus', location: 'Subbaiah Salai', image: 'https://images.unsplash.com/photo-1548625149-720367fa4c1c?w=800' },
-        { name: 'The Sacred Heart Church', location: 'Near Beach', image: 'https://images.unsplash.com/photo-1478731674354-0c4464769e76?w=800' },
-        { name: 'Immaculate Conception Cathedral', location: 'Mission Street', image: 'https://images.unsplash.com/photo-1519817914152-22d216bb9170?w=800' },
-        { name: 'Eglise de Notre Dame des Anges', location: 'Rue Dumas', image: 'https://images.unsplash.com/photo-1578659568744-67b0b3759729?w=800' },
-    ],
-    popular: [
-        { name: 'Promenade Beach', location: 'Beach Road', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800' },
-        { name: 'Rock Beach', location: 'Goubert Avenue', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800' },
-        { name: 'Aurobindo Ashram', location: 'Rue de la Marine', image: 'https://images.unsplash.com/photo-1603794067602-9feaa4f70e0c?w=800' },
-        { name: 'Auroville Matrimandir', location: 'Auroville', image: 'https://images.unsplash.com/photo-1548625149-720367fa4c1c?w=800' },
-        { name: 'Pondicherry Lighthouse', location: 'Promenade', image: 'https://images.unsplash.com/photo-1589829145333-6f6b7d4c1e81?w=800' },
-        { name: 'Pondicherry Museum', location: 'Bharathi Park', image: 'https://images.unsplash.com/photo-1566127444510-a8dc77cda928?w=800' },
-        { name: 'Chunnambar Boat House', location: 'Chunnambar', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800' },
-    ],
+const FAMOUS_PLACE_NAMES = {
+    historical: ['French War Memorial', 'Aayi Mandapam', 'Bharathi Park', 'Arikamedu Archaeological Site', 'Kargil War Memorial', 'Raj Niwas'],
+    temples: ['Manakula Vinayagar Temple', 'Varadaraja Perumal Temple', 'Kamakshi Amman Temple', 'Vedapureeswarar Temple', 'Arulmigu Kanniga Parameswari Temple'],
+    nature: ['Paradise Beach', 'Auroville Beach', 'Serenity Beach', 'Ousteri Lake', 'Botanical Gardens', 'Pichavaram Mangroves'],
+    churches: ['Sacred Heart Basilica', 'Immaculate Conception Cathedral', 'Our Lady of Angels Church', "St. Andrew's Church"],
+    popular: ['Promenade Beach', 'Sri Aurobindo Ashram', 'Matrimandir', 'Puducherry Museum', 'White Town Walks', 'Chunnambar Backwater', 'Serenity Beach'],
     food: [
         { name: 'Ratatouille', type: 'Vegetarian', restaurant: 'Various French Cafés', image: 'https://images.unsplash.com/photo-1572453800999-e8d2d1589b7c?w=800' },
         { name: 'Crepes', type: 'Vegetarian', restaurant: 'Café des Arts', image: 'https://images.unsplash.com/photo-1519671282429-b4b6600f4a93?w=800' },
@@ -69,6 +37,34 @@ const FAMOUS_PLACES = {
         { name: 'Chicken Chettinad', type: 'Non-Vegetarian', restaurant: 'Le Dupleix', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800' },
     ],
 };
+
+const getFamousPlacesWrapper = () => {
+    const mapNames = ((names: string[]) => {
+        return names.map(n => {
+            const place = PLACES_DATA.find(p => p.name.toLowerCase() === n.toLowerCase());
+            if (place) return place;
+            return {
+                id: n,
+                name: n,
+                location: 'Puducherry',
+                image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800',
+                rating: 4.5,
+                description: 'Famous tourist spot in Puducherry.'
+            };
+        });
+    });
+
+    return {
+        historical: mapNames(FAMOUS_PLACE_NAMES.historical),
+        temples: mapNames(FAMOUS_PLACE_NAMES.temples),
+        nature: mapNames(FAMOUS_PLACE_NAMES.nature),
+        churches: mapNames(FAMOUS_PLACE_NAMES.churches),
+        popular: mapNames(FAMOUS_PLACE_NAMES.popular),
+        food: FAMOUS_PLACE_NAMES.food
+    };
+};
+
+const FAMOUS_PLACES = getFamousPlacesWrapper();
 
 const CATEGORIES = [
     { id: 'popular', label: 'Top Hits', emoji: '🌟', count: FAMOUS_PLACES.popular.length },
@@ -139,12 +135,25 @@ export default function FamousPlacesScreen({ navigation }: { navigation?: any })
                             ]}
                             onPress={() => {
                                 if (!isFoodCategory) {
-                                    // Navigate to generic detail or web link if required, otherwise just interactive view
-                                    navigation?.navigate('PlaceDetails', { placeId: item.name });
+                                    // Map to a generic Place object, trying to find enriched data first
+                                    const realPlace = PLACES_DATA.find(p => p.name.toLowerCase() === item.name.toLowerCase());
+                                    const placeData = realPlace || {
+                                        id: item.name,
+                                        name: item.name,
+                                        image: item.image,
+                                        address: (item as any).location || 'Puducherry',
+                                        rating: '4.5',
+                                        description: `One of the most famous tourist spots in Pondicherry.`,
+                                        category: activeCategory
+                                    };
+                                    navigation?.navigate('PlaceDetails', { place: placeData });
                                 }
                             }}
                         >
-                            <Image source={{ uri: item.image || 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800' }} style={styles.cardImage} />
+                            <Image
+                                source={typeof item.image === 'number' ? item.image : { uri: item.image || 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800' }}
+                                style={styles.cardImage}
+                            />
 
                             <LinearGradient
                                 colors={['transparent', 'rgba(15,23,42,0.6)', 'rgba(15,23,42,0.95)']}

@@ -197,59 +197,36 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </LinearGradient>
         </Animated.View>
 
-        {/* Statistics Cards */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statsRow}>
-            <Animated.View style={[styles.statCard, { transform: [{ translateY: slideAnim.interpolate({ inputRange: [0, 1], outputRange: [50, 0] }) }] }]}>
-              <LinearGradient
-                colors={['#06b6d4', '#0891b2']}
-                style={styles.statGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.statNumber}>50+</Text>
-                <Text style={styles.statLabel}>Places</Text>
-              </LinearGradient>
-            </Animated.View>
 
-            <Animated.View style={[styles.statCard, { transform: [{ translateY: slideAnim.interpolate({ inputRange: [0, 1], outputRange: [50, 0] }) }] }]}>
-              <LinearGradient
-                colors={['#8b5cf6', '#7c3aed']}
-                style={styles.statGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.statNumber}>1200+</Text>
-                <Text style={styles.statLabel}>Itineraries</Text>
-              </LinearGradient>
-            </Animated.View>
-          </View>
 
-          <View style={styles.statsRow}>
-            <Animated.View style={[styles.statCard, { transform: [{ translateY: slideAnim.interpolate({ inputRange: [0, 1], outputRange: [50, 0] }) }] }]}>
-              <LinearGradient
-                colors={['#f59e0b', '#d97706']}
-                style={styles.statGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.statNumber}>3400+</Text>
-                <Text style={styles.statLabel}>Travelers</Text>
-              </LinearGradient>
-            </Animated.View>
-
-            <Animated.View style={[styles.statCard, { transform: [{ translateY: slideAnim.interpolate({ inputRange: [0, 1], outputRange: [50, 0] }) }] }]}>
-              <LinearGradient
-                colors={['#10b981', '#059669']}
-                style={styles.statGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Text style={styles.statNumber}>100%</Text>
-                <Text style={styles.statLabel}>Free</Text>
-              </LinearGradient>
-            </Animated.View>
-          </View>
+        {/* Best Time to Visit Section — shown prominently after hero */}
+        <View style={styles.bestTimeContainer}>
+          <LinearGradient
+            colors={['#1e293b', '#334155', '#475569']}
+            style={styles.bestTimeGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Text style={styles.sectionTitle}>Best Time to Visit</Text>
+            <View style={styles.seasonRow}>
+              <View style={styles.seasonBadge}>
+                <Text style={styles.seasonIcon}>🌧️</Text>
+                <Text style={styles.seasonName}>Monsoon</Text>
+                <Text style={styles.seasonDesc}>Jul - Sep</Text>
+              </View>
+              <View style={[styles.seasonBadge, styles.bestSeasonBadge]}>
+                <View style={styles.bestTag}><Text style={styles.bestTagText}>BEST</Text></View>
+                <Text style={styles.seasonIcon}>❄️</Text>
+                <Text style={styles.seasonName}>Winter</Text>
+                <Text style={styles.seasonDesc}>Oct - Mar</Text>
+              </View>
+              <View style={styles.seasonBadge}>
+                <Text style={styles.seasonIcon}>☀️</Text>
+                <Text style={styles.seasonName}>Summer</Text>
+                <Text style={styles.seasonDesc}>Apr - Jun</Text>
+              </View>
+            </View>
+          </LinearGradient>
         </View>
 
         {/* Famous Places Premium Banner */}
@@ -330,54 +307,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           ))}
         </ScrollView>
 
-        {/* Best Time to Visit Section */}
-        <View style={styles.bestTimeContainer}>
-          <LinearGradient
-            colors={['#1e293b', '#334155', '#475569']}
-            style={styles.bestTimeGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={styles.sectionTitle}>Best Time to Visit</Text>
-            <View style={styles.seasonRow}>
-              <View style={styles.seasonBadge}>
-                <Text style={styles.seasonIcon}>🌧️</Text>
-                <Text style={styles.seasonName}>Monsoon</Text>
-                <Text style={styles.seasonDesc}>Jul - Sep</Text>
-              </View>
-              <View style={[styles.seasonBadge, styles.bestSeasonBadge]}>
-                <View style={styles.bestTag}><Text style={styles.bestTagText}>BEST</Text></View>
-                <Text style={styles.seasonIcon}>❄️</Text>
-                <Text style={styles.seasonName}>Winter</Text>
-                <Text style={styles.seasonDesc}>Oct - Mar</Text>
-              </View>
-              <View style={styles.seasonBadge}>
-                <Text style={styles.seasonIcon}>☀️</Text>
-                <Text style={styles.seasonName}>Summer</Text>
-                <Text style={styles.seasonDesc}>Apr - Jun</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </View>
 
-        {/* Testimonials */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Happy Travelers</Text>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.testimonialsContainer}>
-          {TESTIMONIALS.map((testimonial) => (
-            <View key={testimonial.id} style={styles.testimonialCard}>
-              <View style={styles.testimonialHeader}>
-                <Image source={{ uri: testimonial.avatar }} style={styles.testimonialAvatar} />
-                <View style={styles.testimonialInfo}>
-                  <Text style={styles.testimonialName}>{testimonial.name}</Text>
-                  <Text style={styles.testimonialRating}>{'⭐'.repeat(testimonial.rating)}</Text>
-                </View>
-              </View>
-              <Text style={styles.testimonialText}>"{testimonial.review}"</Text>
-            </View>
-          ))}
-        </ScrollView>
 
         {/* CTA Button */}
         <TouchableOpacity
@@ -396,8 +326,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Bottom Spacing */}
-        <View style={{ height: 100 }} />
+        {/* Bottom Spacing - Reduced from 100 to 20 per user request to remove empty void */}
+        <View style={{ height: 20 }} />
       </ScrollView>
 
       {/* Floating AI Button */}

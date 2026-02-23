@@ -44,9 +44,12 @@ export async function generateItinerary(draft: TripDraft): Promise<DailyItinerar
         INSTRUCTIONS:
         1. Generate a valid JSON array of DailyItinerary objects.
         2. Strict JSON format only. No markdown code blocks or extra text.
-        3. Allocate activities to Morning, Afternoon, and Evening slots.
-        4. Consider travel time between places.
-        5. Add specific tips based on constraints (e.g., 'Wheelchair accessible', 'Kid-friendly').
+        3. Create a HIGHLY GRANULAR, hour-by-hour schedule with at least 6-8 distinct events per day.
+        4. Standard flow example: Sunrise, Breakfast, Morning Place 1, Morning Place 2, Lunch, Afternoon Place 3, Evening Place 4, Dinner, Nightlife (if any).
+        5. In the \`timeSlot\` field, put the category (e.g., "Sunrise", "Breakfast", "Morning Exploration", "Lunch", "Dinner").
+        6. In the \`timeRange\` field, put the EXACT hours (e.g., "06:00 AM - 08:00 AM"). The UI will extract the start time from this!
+        7. Consider travel time between places.
+        8. Add specific tips based on constraints (e.g., 'Wheelchair accessible', 'Kid-friendly').
 
         OUTPUT SCHEMA (ONLY OUTPUT THIS JSON, NOTHING ELSE):
         [
@@ -55,8 +58,8 @@ export async function generateItinerary(draft: TripDraft): Promise<DailyItinerar
                 "date": "YYYY-MM-DD",
                 "activities": [
                     {
-                        "timeSlot": "Morning",
-                        "timeRange": "10:00 AM - 01:00 PM",
+                        "timeSlot": "Sunrise",
+                        "timeRange": "06:00 AM - 08:00 AM",
                         "placeName": "Name of Place",
                         "description": "Short activity description",
                         "travelTime": "15 mins",

@@ -60,28 +60,32 @@ export default function EmergencyScreenTab() {
   const [activeTab, setActiveTab] = useState('hospitals');
 
   const handleCall = (number: string) => {
-    Linking.openURL(`tel:${number}`).catch(() => {
-      // alert(`Unable to call ${number}`);
-    });
+    Linking.openURL(`tel:${number}`).catch(() => { });
+  };
+
+  const handleLocation = (name: string, address: string, mapUrl?: string) => {
+    const url = mapUrl ||
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${address} Puducherry`)}`;
+    Linking.openURL(url).catch(() => { });
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'hospitals':
         return HOSPITALS.map((item, index) => (
-          <FacilityCard key={index} item={item} index={index} icon="hospital-building" type="hospital" onCall={handleCall} />
+          <FacilityCard key={index} item={item} index={index} icon="hospital-building" type="hospital" onCall={handleCall} onLocation={handleLocation} />
         ));
       case 'police':
         return POLICE_STATIONS.map((item, index) => (
-          <ContactRow key={index} item={item} index={index} icon="shield" color="blue" onCall={handleCall} />
+          <ContactRow key={index} item={item} index={index} icon="shield" color="blue" onCall={handleCall} onLocation={handleLocation} />
         ));
       case 'fire':
         return FIRE_STATIONS.map((item, index) => (
-          <ContactRow key={index} item={item} index={index} icon="fire" color="orange" onCall={handleCall} />
+          <ContactRow key={index} item={item} index={index} icon="fire" color="orange" onCall={handleCall} onLocation={handleLocation} />
         ));
       case 'pharmacy':
         return PHARMACIES.map((item, index) => (
-          <FacilityCard key={index} item={item} index={index} icon="pill" type="pharmacy" onCall={handleCall} />
+          <FacilityCard key={index} item={item} index={index} icon="pill" type="pharmacy" onCall={handleCall} onLocation={handleLocation} />
         ));
       default:
         return null;
@@ -185,7 +189,7 @@ function TabButton({ active, label, icon, onPress }: any) {
   );
 }
 
-function FacilityCard({ item, index, icon, type, onCall }: any) {
+function FacilityCard({ item, index, icon, type, onCall, onLocation }: any) {
   return (
     <Animated.View entering={FadeInDown.delay(index * 100).springify()} style={styles.facilityCard}>
       <View style={styles.facilityHeader}>
@@ -197,7 +201,6 @@ function FacilityCard({ item, index, icon, type, onCall }: any) {
           </View>
         </View>
       </View>
-
 
       {item.specialty && <Text style={styles.cardSubtitle}>{item.specialty}</Text>}
 
@@ -214,15 +217,23 @@ function FacilityCard({ item, index, icon, type, onCall }: any) {
             </View>
           ))}
         </View>
-        <TouchableOpacity onPress={() => onCall(item.phone)} style={styles.miniCallAction}>
-          <Feather name="phone" size={16} color="#fff" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity
+            onPress={() => onLocation(item.name, item.address, item.mapUrl)}
+            style={[styles.miniCallAction, { backgroundColor: '#0284c7' }]}
+          >
+            <Feather name="map-pin" size={16} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => onCall(item.phone)} style={styles.miniCallAction}>
+            <Feather name="phone" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
     </Animated.View>
   );
 }
 
-function ContactRow({ item, index, icon, color, onCall }: any) {
+function ContactRow({ item, index, icon, color, onCall, onLocation }: any) {
   return (
     <Animated.View entering={FadeInRight.delay(index * 50).springify()} style={styles.rowCard}>
       <View style={styles.rowLeft}>
@@ -234,9 +245,17 @@ function ContactRow({ item, index, icon, color, onCall }: any) {
           <Text style={styles.rowSubtitle}>{item.area}</Text>
         </View>
       </View>
-      <TouchableOpacity onPress={() => onCall(item.phone)} style={[styles.rowCallBtn, { backgroundColor: color === 'blue' ? '#3b82f6' : '#f97316' }]}>
-        <Feather name="phone" size={16} color="#fff" />
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TouchableOpacity
+          onPress={() => onLocation(item.name, item.area, item.mapUrl)}
+          style={[styles.rowCallBtn, { backgroundColor: '#0284c7' }]}
+        >
+          <Feather name="map-pin" size={16} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onCall(item.phone)} style={[styles.rowCallBtn, { backgroundColor: color === 'blue' ? '#3b82f6' : '#f97316' }]}>
+          <Feather name="phone" size={16} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }

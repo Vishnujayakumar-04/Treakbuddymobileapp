@@ -77,7 +77,7 @@ const localDataMap: { [key: string]: any[] } = {
   rentals: rentalsData,
   shareauto: shareAutoData,
   // Emergency
-  emergency: emergencyData,
+  emergency: emergencyData as any,
   hospitals: hospitalsData,
   police: policeData,
   fire: fireData,
@@ -256,10 +256,15 @@ export const getAllPlaces = async (): Promise<Place[]> => {
 export const searchPlaces = async (query: string): Promise<Place[]> => {
   const allPlaces = await getAllPlaces();
   const lowerQuery = query.toLowerCase();
-  return allPlaces.filter(place =>
-    place.name.toLowerCase().includes(lowerQuery) ||
-    place.description.toLowerCase().includes(lowerQuery)
-  );
+  return allPlaces.filter(place => {
+    const desc = typeof place.description === 'string'
+      ? place.description
+      : JSON.stringify(place.description ?? '');
+    return (
+      place.name.toLowerCase().includes(lowerQuery) ||
+      desc.toLowerCase().includes(lowerQuery)
+    );
+  });
 };
 
 /**
