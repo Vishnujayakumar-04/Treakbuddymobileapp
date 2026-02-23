@@ -24,11 +24,11 @@ export const ALL_CATEGORIES: Category[] = [
   {
     id: 'temples',
     label: 'Temples',
-    image: require('../../assets/assets/spot/aayi mandapam.jfif'),
+    image: require('../../assets/assets/temple/Kamakshmi amman temple.jpg'),
     count: '17 places',
     subcategories: [
-      { id: 'hindu-temples', label: 'Hindu Temples', image: require('../../assets/assets/spot/aayi mandapam 2.jfif'), parentId: 'temples' },
-      { id: 'churches', label: 'Churches', image: require('../../assets/assets/spot/museum.jfif'), parentId: 'temples' },
+      { id: 'hindu-temples', label: 'Hindu Temples', image: require('../../assets/assets/temple/varadaraja-temple-pondi.jpg'), parentId: 'temples' },
+      { id: 'churches', label: 'Churches', image: require("../../assets/assets/temple/st andrew's church.jpg"), parentId: 'temples' },
       { id: 'mosques', label: 'Mosques', image: require('../../assets/assets/spot/museum 2.jfif'), parentId: 'temples' },
       { id: 'jain-temples', label: 'Jain Temples', image: require('../../assets/assets/spot/museum 3.jfif'), parentId: 'temples' },
       { id: 'buddhist-temples', label: 'Buddhist Temples', image: require('../../assets/assets/spot/aayi mandapam.jfif'), parentId: 'temples' },
@@ -101,7 +101,8 @@ export const ALL_CATEGORIES: Category[] = [
   },
 
   // 8. Photoshoot Locations
-  { id: 'photoshoot', label: 'Photoshoot Locations', image: require('../../assets/assets/spot/white-town-walks.jfif'),
+  {
+    id: 'photoshoot', label: 'Photoshoot Locations', image: require('../../assets/assets/spot/white-town-walks.jfif'),
     count: '14 spots',
     subcategories: [
       { id: 'french-colony', label: 'French Colony', image: require('../../assets/assets/spot/white town walks 2.jfif'), parentId: 'photoshoot' },

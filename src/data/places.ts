@@ -149,7 +149,7 @@ const MANUAL_PLACES: Place[] = [
         id: 's2', name: "Sri Aurobindo Ashram", category: "spiritual",
         description: "A spiritual community and ashram founded by Sri Aurobindo and The Mother. A place of deep silence.",
         location: "Marine Street", rating: 4.7,
-        image: "https://images.unsplash.com/photo-1541818167390-e41b95383f98?w=800",
+        image: require('../../assets/assets/temple/sri aurobindo ashram.jpg'),
         tags: ["Meditation", "Silence", "Flowers"], timeSlot: "Morning",
         bestTime: "8:00 AM - 12:00 PM", openTime: "8:00 AM - 12:00 PM, 2:00 PM - 6:00 PM", entryFee: "Free"
     },
@@ -167,7 +167,7 @@ const MANUAL_PLACES: Place[] = [
         id: 't1', name: "Manakula Vinayagar Temple", category: "temples",
         description: "Ancient Ganesha temple predating French rule. Famous for its golden chariot and temple elephant.",
         location: "White Town", rating: 4.9,
-        image: require('../../assets/assets/spot/aayi mandapam 2.jfif'),
+        image: require('../../assets/assets/temple/Arulmigu-Manakula-Vinayagar-Temple-Pondicherry-A-Divine-Blend-of-History-Culture-Devotion.jpg'),
         tags: ["Ganesha", "Ancient", "Divine"], timeSlot: "Morning",
         bestTime: "Early Morning", openTime: "5:30 AM – 12:30 PM, 4:00 PM – 9:00 PM", entryFee: "Free"
     },
@@ -175,7 +175,7 @@ const MANUAL_PLACES: Place[] = [
         id: 't2', name: "Varadaraja Perumal Temple", category: "temples",
         description: "Historic Divya Desam temple dedicated to Lord Vishnu, featuring Dravidian architecture.",
         location: "Heritage Town", rating: 4.8,
-        image: require('../../assets/assets/spot/aayi mandapam 2.jfif'),
+        image: require('../../assets/assets/temple/varadaraja-temple-pondi.jpg'),
         tags: ["Vishnu", "Dravidian", "History"], timeSlot: "Evening",
         bestTime: "Evening Aarti", openTime: "6:00 AM – 11:30 AM, 4:30 PM – 8:30 PM", entryFee: "Free"
     },
@@ -183,7 +183,7 @@ const MANUAL_PLACES: Place[] = [
         id: 't3', name: "Vedapureeswarar Temple", category: "temples",
         description: "Dedicated to Lord Shiva, this ancient Saiva shrine was destroyed by the French in 1748 and rebuilt.",
         location: "Heritage Town", rating: 4.7,
-        image: require('../../assets/assets/spot/white town walks 3.jfif'),
+        image: require('../../assets/assets/temple/150397172Vedapureeswarar-temple.jpg'),
         tags: ["Shiva", "Powerful", "Rebuilt"], timeSlot: "Morning",
         bestTime: "Pradosham", openTime: "6:00 AM – 12:00 PM, 4:00 PM – 8:30 PM", entryFee: "Free"
     },
@@ -215,7 +215,7 @@ const MANUAL_PLACES: Place[] = [
         id: 't7', name: "Kamakshi Amman Temple", category: "temples",
         description: "A revered Hindu temple dedicated to Goddess Kamakshi, a form of Parvati. Located near the beach, this temple is known for its vibrant festivals, intricate gopuram, and daily rituals that draw devotees from across the region.",
         location: "Villianur Main Road", rating: 4.6,
-        image: require('../../assets/assets/spot/aayi mandapam.jfif'),
+        image: require('../../assets/assets/temple/Kamakshmi amman temple.jpg'),
         tags: ["Amman", "Goddess", "Festivals"], timeSlot: "Morning",
         bestTime: "Friday & Pournami", openTime: "6:00 AM – 12:00 PM, 4:00 PM – 8:30 PM", entryFee: "Free"
     },
@@ -223,7 +223,7 @@ const MANUAL_PLACES: Place[] = [
         id: 't8', name: "Arulmigu Kanniga Parameswari Temple", category: "temples",
         description: "An ancient temple dedicated to Goddess Kanniga Parameswari, believed to be over 500 years old. Located in the fishing village of Kuruchikuppam, this temple is known for its annual chariot festival and the deep devotion of the local coastal community.",
         location: "Kuruchikuppam", rating: 4.5,
-        image: require('../../assets/assets/spot/aayi mandapam 2.jfif'),
+        image: require('../../assets/assets/temple/sri-kanniga-parameswari-temple-puducherry-tourism-entry-fee-timings-holidays-reviews-header.jpg'),
         tags: ["Goddess", "Ancient", "Chariot Festival"], timeSlot: "Morning",
         bestTime: "Morning Pooja", openTime: "6:00 AM – 12:00 PM, 4:00 PM – 8:00 PM", entryFee: "Free"
     },
@@ -232,7 +232,7 @@ const MANUAL_PLACES: Place[] = [
         id: 'c1', name: "Sacred Heart Basilica", category: "churches",
         description: "A stunning example of Gothic revival architecture with rare stained glass panels depicting the life of Christ.",
         location: "Subbayah Salai", rating: 4.8,
-        image: require('../../assets/assets/spot/museum.jfif'),
+        image: require('../../assets/assets/temple/basilica-of-the-sacred-heart-of-jesus-puducherry-tourism-entry-fee-timings-holidays-reviews-header.jpg'),
         tags: ["Basilica", "Gothic", "Stained Glass"], timeSlot: "Evening",
         bestTime: "Evening Mass", openTime: "6:00 AM – 7:00 PM", entryFee: "Free"
     },
@@ -240,7 +240,7 @@ const MANUAL_PLACES: Place[] = [
         id: 'c2', name: "Immaculate Conception Cathedral", category: "churches",
         description: "The 300-year-old mother church of the Roman Catholic Archdiocese, known locally as Samba Kovil.",
         location: "Mission Street", rating: 4.6,
-        image: require('../../assets/assets/spot/white town walks 3.jfif'),
+        image: require('../../assets/assets/temple/immaculate-conception-cathedral-puducherry-entry-fee-timings-holidays-reviews-header.jpg'),
         tags: ["Cathedral", "History", "Blue-Gold"], timeSlot: "Morning",
         bestTime: "Sunday Morning", openTime: "6:00 AM – 6:30 PM", entryFee: "Free"
     },
@@ -248,7 +248,7 @@ const MANUAL_PLACES: Place[] = [
         id: 'c3', name: "Our Lady of Angels Church", category: "churches",
         description: "A beautiful French colonial era church in White Town facing the Bay of Bengal.",
         location: "White Town", rating: 4.7,
-        image: require('../../assets/assets/spot/french wa rmemorial.jfif'),
+        image: require('../../assets/assets/temple/our lady of angle church.jpg'),
         tags: ["French", "Pink", "Sea View"], timeSlot: "Afternoon",
         bestTime: "Sunset", openTime: "6:30 AM – 6:30 PM", entryFee: "Free"
     },
