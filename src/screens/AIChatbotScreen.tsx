@@ -1,35 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TextInput,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
   Platform,
   StatusBar,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
+  SafeAreaView,
+  Keyboard,
+  Dimensions,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ArrowBackIcon } from '../components/icons';
-import { spacing, radius } from '../theme/spacing';
-import { typography } from '../theme/typography';
-import { shadows } from '../theme/shadows';
-import { auth } from '../firebase/auth';
-import {
-  sendAIMessage,
-  getChatHistory,
-  subscribeToChatHistory,
-  ChatMessage
-} from '../utils/firebaseAI';
+import { spacing } from '../theme/spacing';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// ChatMessage interface is imported from firebaseAI
+// Groq API call — uses EXPO_PUBLIC_GROQ_API_KEY from .env
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
+
+const callGroqAPI = async (
+  question: string,
+  history: { role: 'user' | 'assistant'; content: string }[]
+): Promise<string> => {
+  if (!GROQ_API_KEY) {
+    return 'Groq API key not found. Please check your .env file (EXPO_PUBLIC_GROQ_API_KEY).';
+  }
+
+  const systemPrompt = `You are a friendly and knowledgeable travel guide for Pondicherry (Puducherry), India.
+You help tourists with travel planning, places to visit, food recommendations, cultural tips, transport, hotels, and local experiences.
+Keep answers concise (2-4 sentences), warm, and helpful. If asked anything unrelated to Pondicherry or travel, gently redirect to your specialty.`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...history,
+    { role: 'user', content: question },
+  ];
+
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages,
+      temperature: 0.7,
+      max_tokens: 400,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text().catch(() => 'Unknown error');
+    throw new Error(`Groq API error ${response.status}: ${err.slice(0, 120)}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content?.trim() || 'Sorry, I could not generate a response. Please try again.';
+};
+
+interface Message {
+  id: string;
+  role: 'user' | 'ai';
+  text: string;
+  loading?: boolean;
+}
+
+const QUICK_QUESTIONS = [
+  '🏖️ Best beaches in Pondy?',
+  '🍽️ Top restaurants?',
+  '🛕 Famous temples?',
+  '🎒 2-day itinerary?',
+  '🚗 How to get around?',
+];
 
 interface AIChatbotScreenProps {
   navigation?: any;
@@ -37,269 +87,243 @@ interface AIChatbotScreenProps {
 
 export default function AIChatbotScreen({ navigation }: AIChatbotScreenProps) {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingHistory, setLoadingHistory] = useState(true);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
+  const inputRef = useRef<TextInput>(null);
 
-  useEffect(() => {
-    if (!auth.currentUser) {
-      Alert.alert('Login Required', 'Please login to use AI Assistant', [
-        { text: 'OK', onPress: () => navigation?.goBack() },
-      ]);
-      return;
-    }
-
-    // Load chat history from Firestore
-    loadChatHistory();
-
-    // Subscribe to real-time updates
-    const unsubscribe = setupChatSubscription();
-
-    // Listen to auth state changes
-    const authUnsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        navigation?.goBack();
-      }
-    });
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-      authUnsubscribe();
-    };
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   }, []);
 
-  const loadChatHistory = async () => {
-    if (!auth.currentUser) return;
+  const sendMessage = useCallback(async (text: string) => {
+    const question = text.trim();
+    if (!question || isLoading) return;
 
-    try {
-      setLoadingHistory(true);
-      const history = await getChatHistory(auth.currentUser.uid);
-      setMessages(history);
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
-
-  const setupChatSubscription = () => {
-    if (!auth.currentUser) return () => { };
-
-    try {
-      return subscribeToChatHistory(auth.currentUser.uid, (messages) => {
-        setMessages(messages);
-        setLoadingHistory(false);
-      });
-    } catch (error) {
-      console.error('Error setting up chat subscription:', error);
-      setLoadingHistory(false);
-      return () => { };
-    }
-  };
-
-  const handleAskAI = async () => {
-    if (!input.trim()) {
-      return;
-    }
-
-    if (!auth.currentUser) {
-      Alert.alert('Login Required', 'Please login to use AI Assistant');
-      return;
-    }
-
-    // Check internet connection (basic check)
-    // Note: For production, install @react-native-community/netinfo
-    // For now, we'll catch network errors in the try-catch
-
-    const question = input.trim();
     setInput('');
-    setIsLoading(true);
+    Keyboard.dismiss();
 
-    // Add user message immediately
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      question,
-      answer: '',
-      timestamp: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+    // Add user message
+    const userMsg: Message = {
+      id: `u_${Date.now()}`,
+      role: 'user',
+      text: question,
     };
-    setMessages((prev) => [...prev, userMessage]);
+
+    // Add AI loading placeholder
+    const aiMsgId = `a_${Date.now()}`;
+    const aiMsgLoading: Message = {
+      id: aiMsgId,
+      role: 'ai',
+      text: '',
+      loading: true,
+    };
+
+    setMessages(prev => [...prev, userMsg, aiMsgLoading]);
+    setIsLoading(true);
+    scrollToBottom();
 
     try {
-      // Get AI response and save to Firestore using Firebase AI service
-      if (!auth.currentUser) {
-        throw new Error('User not authenticated');
-      }
+      // Build conversation history in Groq/OpenAI format
+      const history = messages
+        .filter(m => !m.loading && m.text)
+        .slice(-8)
+        .map(m => ({
+          role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+          content: m.text,
+        }));
 
-      const { answer: aiReply, messageId } = await sendAIMessage(
-        auth.currentUser.uid,
-        question
+      const answer = await callGroqAPI(question, history);
+
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === aiMsgId ? { ...m, text: answer, loading: false } : m
+        )
       );
-
-      // Update message with answer
-      const updatedMessage: ChatMessage = {
-        ...userMessage,
-        id: messageId,
-        answer: aiReply,
-      };
-      setMessages((prev) => prev.map((msg) => (msg.id === userMessage.id ? updatedMessage : msg)));
     } catch (error: any) {
-      console.error('Error getting AI response:', error);
+      const errText =
+        error?.message?.includes('API key') || error?.message?.includes('not found')
+          ? '⚙️ Groq API key missing in .env file.'
+          : error?.message?.includes('Network') || error?.message?.includes('fetch')
+            ? '📵 No internet connection. Please try again.'
+            : error?.message?.includes('401') || error?.message?.includes('invalid')
+              ? '🔑 Invalid Groq API key. Check your .env file.'
+              : '😕 Something went wrong. Please try again.';
 
-      // Check if it's a network error
-      const errorMessage = error.message || '';
-      if (errorMessage.includes('Network') || errorMessage.includes('fetch') || errorMessage.includes('Failed to fetch')) {
-        Alert.alert('No Internet', 'Please check your internet connection and try again.');
-      } else {
-        Alert.alert('Error', errorMessage || 'Failed to get AI response. Please try again.');
-      }
-
-      // Remove the message if it failed
-      setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === aiMsgId ? { ...m, text: errText, loading: false } : m
+        )
+      );
     } finally {
       setIsLoading(false);
+      scrollToBottom();
     }
+  }, [isLoading, messages, scrollToBottom]);
+
+  const handleQuickQuestion = (q: string) => {
+    const stripped = q.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\uFE0F\s]+/u, '').trim();
+    sendMessage(stripped || q);
   };
 
-  useEffect(() => {
-    // Scroll to bottom when new messages arrive
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  }, [messages]);
-
-  if (loadingHistory) {
+  const renderMessage = ({ item }: { item: Message }) => {
+    const isUser = item.role === 'user';
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0E7C86" />
-          <Text style={styles.loadingText}>Loading chat history...</Text>
+      <View style={[styles.msgRow, isUser ? styles.msgRowUser : styles.msgRowAI]}>
+        {!isUser && (
+          <View style={styles.aiAvatar}>
+            <LinearGradient colors={['#0891b2', '#06b6d4']} style={styles.aiAvatarGrad}>
+              <Text style={styles.aiAvatarText}>✦</Text>
+            </LinearGradient>
+          </View>
+        )}
+        <View
+          style={[
+            styles.bubble,
+            isUser ? styles.userBubble : styles.aiBubble,
+          ]}
+        >
+          {item.loading ? (
+            <View style={styles.dots}>
+              <ActivityIndicator size="small" color="#0891b2" />
+              <Text style={styles.typingText}>Thinking...</Text>
+            </View>
+          ) : (
+            <Text style={isUser ? styles.userText : styles.aiText}>{item.text}</Text>
+          )}
         </View>
-      </SafeAreaView>
+      </View>
     );
-  }
+  };
+
+  const renderEmpty = () => (
+    <View style={styles.emptyState}>
+      <LinearGradient colors={['#e0f2fe', '#f0f9ff']} style={styles.emptyIcon}>
+        <Text style={{ fontSize: 40 }}>✦</Text>
+      </LinearGradient>
+      <Text style={styles.emptyTitle}>Pondy AI Assistant</Text>
+      <Text style={styles.emptySubtitle}>
+        Ask me anything about{'\n'}Puducherry — places, food, culture & more!
+      </Text>
+
+      <View style={styles.quickChipsWrap}>
+        {QUICK_QUESTIONS.map((q, i) => (
+          <TouchableOpacity
+            key={i}
+            style={styles.quickChip}
+            onPress={() => handleQuickQuestion(q)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.quickChipText}>{q}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <TouchableOpacity
-            onPress={() => navigation?.goBack()}
-            style={styles.backButton}
-            activeOpacity={0.7}
-          >
-            <ArrowBackIcon size={24} color="#000000" />
-          </TouchableOpacity>
-          <View style={styles.headerAvatarContainer}>
-            <Text style={styles.headerAvatar}>🤖</Text>
-          </View>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Pondy AI Assistant</Text>
-            <Text style={styles.headerSubtitle}>Always here to help</Text>
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          style={styles.backBtn}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={22} color="#0f172a" />
+        </TouchableOpacity>
+
+        <View style={styles.headerCenter}>
+          <LinearGradient colors={['#0891b2', '#06b6d4']} style={styles.headerAvatar}>
+            <Text style={{ fontSize: 18 }}>✦</Text>
+          </LinearGradient>
+          <View>
+            <Text style={styles.headerTitle}>Pondy AI</Text>
+            <Text style={styles.headerSub}>
+              {isLoading ? '● Responding...' : '● Online'}
+            </Text>
           </View>
         </View>
+
+        {messages.length > 0 && (
+          <TouchableOpacity
+            style={styles.clearBtn}
+            onPress={() => setMessages([])}
+            activeOpacity={0.7}
+          >
+            <Feather name="trash-2" size={18} color="#94a3b8" />
+          </TouchableOpacity>
+        )}
       </View>
 
+      {/* Chat + Input inside KeyboardAvoidingView */}
       <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        {/* Chat Messages */}
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={item => item.id}
+          ListEmptyComponent={renderEmpty}
+          contentContainerStyle={[
+            styles.listContent,
+            messages.length === 0 && styles.listEmpty,
+          ]}
+          onContentSizeChange={scrollToBottom}
           showsVerticalScrollIndicator={false}
-        >
-          {messages.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <View style={styles.emptyIconContainer}>
-                <Text style={styles.emptyIcon}>✨</Text>
-              </View>
-              <Text style={styles.emptyTitle}>How can I help you today?</Text>
-              <Text style={styles.emptyText}>
-                Ask me about places to visit, best restaurants, or hidden gems in Puducherry!
-              </Text>
-            </View>
-          ) : (
-            messages.map((message) => (
-              <View key={message.id}>
-                {/* User Question */}
-                <View style={styles.userMessageContainer}>
-                  <View style={styles.userMessage}>
-                    <Text style={styles.userMessageText}>{message.question}</Text>
-                  </View>
-                </View>
+          keyboardShouldPersistTaps="handled"
+        />
 
-                {/* AI Answer */}
-                {message.answer ? (
-                  <View style={styles.aiMessageRow}>
-                    <View style={styles.aiAvatarSmall}>
-                      <Text style={styles.aiAvatarTextSmall}>🤖</Text>
-                    </View>
-                    <View style={styles.aiMessageContainer}>
-                      <View style={styles.aiMessage}>
-                        <Text style={styles.aiMessageText}>{message.answer}</Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <View style={styles.aiMessageRow}>
-                    <View style={styles.aiAvatarSmall}>
-                      <Text style={styles.aiAvatarTextSmall}>🤖</Text>
-                    </View>
-                    <View style={styles.aiMessageContainer}>
-                      <View style={styles.aiMessageLoading}>
-                        <ActivityIndicator size="small" color="#0E7C86" />
-                      </View>
-                    </View>
-                  </View>
-                )}
-              </View>
-            ))
-          )}
-          {isLoading && (
-            <View style={styles.aiMessageRow}>
-              <View style={styles.aiAvatarSmall}>
-                <Text style={styles.aiAvatarTextSmall}>🤖</Text>
-              </View>
-              <View style={styles.aiMessageContainer}>
-                <View style={styles.aiMessageLoading}>
-                  <ActivityIndicator size="small" color="#0E7C86" />
-                </View>
-              </View>
-            </View>
-          )}
-        </ScrollView>
+        {/* Input Bar */}
+        <View style={styles.inputBar}>
+          {/* Quick suggestions when no messages */}
+          {messages.length === 0 && null}
 
-        {/* Input Area */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
+          <View style={styles.inputRow}>
             <TextInput
+              ref={inputRef}
               style={styles.input}
-              placeholder="Ask me anything..."
-              placeholderTextColor="#9ca3af"
+              placeholder="Ask about Puducherry..."
+              placeholderTextColor="#94a3b8"
               value={input}
               onChangeText={setInput}
               multiline
               maxLength={500}
               editable={!isLoading}
+              onSubmitEditing={() => sendMessage(input)}
+              returnKeyType="send"
+              blurOnSubmit={false}
             />
             <TouchableOpacity
               style={[
-                styles.sendButton,
-                (!input.trim() || isLoading) ? styles.sendButtonDisabled : styles.sendButtonActive
+                styles.sendBtn,
+                (!input.trim() || isLoading) && styles.sendBtnDisabled,
               ]}
-              onPress={handleAskAI}
-              activeOpacity={0.8}
+              onPress={() => sendMessage(input)}
               disabled={!input.trim() || isLoading}
+              activeOpacity={0.8}
             >
-              <Feather name="arrow-up" size={20} color="#FFFFFF" />
+              <LinearGradient
+                colors={
+                  !input.trim() || isLoading
+                    ? ['#e2e8f0', '#e2e8f0']
+                    : ['#0891b2', '#06b6d4']
+                }
+                style={styles.sendBtnGrad}
+              >
+                <Feather
+                  name="send"
+                  size={16}
+                  color={!input.trim() || isLoading ? '#94a3b8' : '#fff'}
+                />
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -312,209 +336,243 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
+    paddingTop: STATUSBAR_HEIGHT,
   },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    ...typography.bodyMedium,
-    color: '#666666',
-    marginTop: spacing.md,
-  },
+
+  // Header
   header: {
-    paddingTop: STATUSBAR_HEIGHT + spacing.sm,
-    paddingBottom: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
-  headerContent: {
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#f1f5f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  headerCenter: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  headerAvatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e0f2fe',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
+    gap: 10,
   },
   headerAvatar: {
-    fontSize: 20,
-  },
-  headerTextContainer: {
-    flex: 1,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 2,
   },
   headerTitle: {
-    fontSize: 18,
-    color: '#0f172a',
-    fontWeight: '700',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  messagesContainer: {
-    flex: 1,
-  },
-  messagesContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-    marginTop: 40,
-  },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-    ...shadows.sm,
-  },
-  emptyIcon: {
-    fontSize: 40,
-  },
-  emptyTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '800',
     color: '#0f172a',
-    marginBottom: spacing.sm,
-    textAlign: 'center',
   },
-  emptyText: {
+  headerSub: {
+    fontSize: 11,
+    color: '#0891b2',
+    fontWeight: '600',
+    marginTop: 1,
+  },
+  clearBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f1f5f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Chat list
+  listContent: {
+    padding: 16,
+    paddingBottom: 10,
+    flexGrow: 1,
+  },
+  listEmpty: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+
+  // Empty state
+  emptyState: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
+  emptyIcon: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
     fontSize: 14,
     color: '#64748b',
     textAlign: 'center',
     lineHeight: 22,
+    marginBottom: 24,
   },
-  userMessageContainer: {
+  quickChipsWrap: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: spacing.lg,
-  },
-  userMessage: {
-    backgroundColor: '#0f172a',
-    borderRadius: 20,
-    borderBottomRightRadius: 4,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 12,
-    maxWidth: '80%',
-    ...shadows.sm,
-  },
-  userMessageText: {
-    ...typography.bodyMedium,
-    color: '#FFFFFF',
-    lineHeight: 20,
-  },
-  aiMessageRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: spacing.lg,
-  },
-  aiAvatarSmall: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#e0f2fe',
-    alignItems: 'center',
+    flexWrap: 'wrap',
     justifyContent: 'center',
-    marginRight: 8,
-    marginBottom: 4,
+    gap: 8,
   },
-  aiAvatarTextSmall: {
-    fontSize: 14,
+  quickChip: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#0891b2',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  aiMessageContainer: {
-    flex: 1,
+  quickChipText: {
+    fontSize: 13,
+    color: '#0f172a',
+    fontWeight: '600',
+  },
+
+  // Messages
+  msgRow: {
     flexDirection: 'row',
+    marginBottom: 12,
+    alignItems: 'flex-end',
+  },
+  msgRowUser: {
+    justifyContent: 'flex-end',
+  },
+  msgRowAI: {
     justifyContent: 'flex-start',
   },
-  aiMessage: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderBottomLeftRadius: 4,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 12,
-    maxWidth: '90%',
-    ...shadows.sm,
+  aiAvatar: {
+    marginRight: 8,
+    marginBottom: 2,
   },
-  aiMessageLoading: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderBottomLeftRadius: 4,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 16,
-    ...shadows.sm,
+  aiAvatarGrad: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  aiMessageText: {
+  aiAvatarText: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '700',
+  },
+  bubble: {
+    maxWidth: '78%',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  userBubble: {
+    backgroundColor: '#0891b2',
+    borderBottomRightRadius: 4,
+    shadowColor: '#0891b2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  aiBubble: {
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  userText: {
+    fontSize: 15,
+    color: '#fff',
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  aiText: {
     fontSize: 15,
     color: '#1e293b',
     lineHeight: 22,
   },
-  inputContainer: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    backgroundColor: '#FFFFFF',
+  dots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  typingText: {
+    fontSize: 13,
+    color: '#64748b',
+    fontStyle: 'italic',
+  },
+
+  // Input Bar
+  inputBar: {
+    backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingBottom: Platform.OS === 'ios' ? 16 : 10,
   },
-  inputWrapper: {
+  inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     backgroundColor: '#f8fafc',
-    borderRadius: 24,
-    borderWidth: 1,
+    borderRadius: 26,
+    borderWidth: 1.5,
     borderColor: '#e2e8f0',
     paddingHorizontal: 4,
     paddingVertical: 4,
   },
   input: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 10,
     fontSize: 15,
     color: '#0f172a',
-    maxHeight: 120,
-    minHeight: 40,
+    maxHeight: 110,
+    minHeight: 42,
   },
-  sendButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  sendBtn: {
+    marginRight: 2,
+    marginBottom: 2,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  sendBtnGrad: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 4,
   },
-  sendButtonActive: {
-    backgroundColor: '#0f172a',
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#cbd5e1',
+  sendBtnDisabled: {
+    opacity: 0.7,
   },
 });
-

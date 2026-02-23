@@ -9,7 +9,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -37,6 +37,9 @@
         "messagingSenderId": "512827597054",
         "appId": "1:512827597054:web:a01e3ff2f07534446c85af",
         "measurementId": "G-ZJQ3YQ287N"
+      },
+      "eas": {
+        "projectId": "a8c5957e-c1a5-4dc5-9129-36e48f588d60"
       }
     },
     "plugins": [
