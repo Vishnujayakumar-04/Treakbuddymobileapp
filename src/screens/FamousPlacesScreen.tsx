@@ -154,17 +154,28 @@ export default function FamousPlacesScreen({ navigation }: { navigation?: any })
                             ]}
                             onPress={() => {
                                 if (!isFoodCategory) {
-                                    // Map to a generic Place object, trying to find enriched data first
-                                    const realPlace = PLACES_DATA.find(p => p.name.toLowerCase() === item.name.toLowerCase());
-                                    const placeData = realPlace || {
-                                        id: item.name,
-                                        name: item.name,
-                                        image: item.image,
-                                        address: (item as any).location || 'Puducherry',
-                                        rating: '4.5',
-                                        description: `One of the most famous tourist spots in Pondicherry.`,
-                                        category: activeCategory
-                                    };
+                                    // Try to find enriched data from places.ts by name match
+                                    const realPlace = PLACES_DATA.find(
+                                        p => p.name.toLowerCase().trim() === item.name.toLowerCase().trim()
+                                    );
+
+                                    // Always build a complete, valid Place object
+                                    const placeData = realPlace
+                                        ? { ...realPlace, image: realPlace.image || item.image }
+                                        : {
+                                            id: (item as any).id || `famous_${item.name.replace(/\s+/g, '').toLowerCase()}`,
+                                            name: item.name,
+                                            image: item.image,
+                                            location: (item as any).location || 'Puducherry',
+                                            rating: (item as any).rating || 4.5,
+                                            description: (item as any).description || `${item.name} is one of Puducherry's most celebrated destinations. Known for its cultural significance, it draws visitors from across the country and abroad.`,
+                                            category: (item as any).category || activeCategory,
+                                            tags: (item as any).tags || ['Famous', 'Must Visit'],
+                                            timeSlot: (item as any).timeSlot || 'Morning to Evening',
+                                            bestTime: (item as any).bestTime || 'Any Time',
+                                            openTime: (item as any).openTime || 'Open Daily',
+                                            entryFee: (item as any).entryFee || 'Free',
+                                        };
                                     navigation?.navigate('PlaceDetails', { place: placeData });
                                 }
                             }}
