@@ -25,6 +25,25 @@ import beachesData from '../data/beaches.json';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
+// Local image map for all beaches that have assets in assets/assets/beaches/
+const BEACH_IMAGE_MAP: Record<string, any> = {
+  'promenade beach': require('../../assets/assets/beaches/promenade beach.jpg'),
+  'paradise beach': require('../../assets/assets/beaches/paradise beach.jpeg'),
+  'serenity beach': require('../../assets/assets/beaches/serenity beach.jpg'),
+  'auroville beach': require('../../assets/assets/beaches/auroville beach.jpg'),
+  'eden beach': require('../../assets/assets/beaches/edan beach.jfif'),
+  'edan beach': require('../../assets/assets/beaches/edan beach.jfif'),
+  'reppo beach': require('../../assets/assets/beaches/reppo beach.jfif'),
+  'chunnambar backwater': require('../../assets/assets/beaches/chunnabar backwater.jfif'),
+  'chunnambar boat house': require('../../assets/assets/beaches/chunnabar backwater.jfif'),
+  'quiet healing centre beach': require('../../assets/assets/beaches/quite healing center beach.jfif'),
+  'quiet healing center beach': require('../../assets/assets/beaches/quite healing center beach.jfif'),
+};
+
+const getBeachLocalImage = (name: string): any | null => {
+  return BEACH_IMAGE_MAP[name.toLowerCase().trim()] || null;
+};
+
 type Language = 'English' | 'Tamil';
 type BeachType = 'All' | 'Urban Beach' | 'Island Beach' | 'Surfing Beach' | 'Quiet Beach' | 'Blue Flag Beach' | 'Private Beach' | 'Secluded Beach' | 'Fishing Village Beach' | 'Fishing Harbor Beach' | 'Backwater';
 type CrowdLevel = 'All' | 'Very Low' | 'Low' | 'Medium' | 'High' | 'Very High';
@@ -142,11 +161,15 @@ export default function BeachesScreen({ navigation }: BeachesScreenProps) {
   }, [selectedType, selectedCrowd, beaches]);
 
   const handleBeachPress = (beach: Beach) => {
+    // Use local asset if available, else fall back to JSON URL
+    const localImage = getBeachLocalImage(beach.name);
+    const fallbackImage = beach.images && beach.images.length > 0 ? beach.images[0] : '';
+
     // Convert Beach to Place format for PlaceDetailsScreen
     const placeForDetails: Place = {
       id: beach.id,
       name: getDisplayName(beach),
-      image: beach.images && beach.images.length > 0 ? beach.images[0] : '',
+      image: localImage || fallbackImage,
       description: getDisplayDescription(beach),
       opening: `${beach.openingTimeWeekdays}`,
       entryFee: beach.entryFee || 'Free',
@@ -191,11 +214,18 @@ export default function BeachesScreen({ navigation }: BeachesScreenProps) {
       onPress={() => handleBeachPress(item)}
       activeOpacity={0.7}
     >
-      <Image
-        source={typeof item.images?.[0] === 'number' ? item.images?.[0] : { uri: item.images?.[0] || 'https://via.placeholder.com/300x200'  }}
-        style={styles.placeImage}
-        resizeMode="cover"
-      />
+      {(() => {
+        const localImg = getBeachLocalImage(item.name);
+        const remoteUrl = item.images && item.images.length > 0 ? item.images[0] : null;
+        const imgSrc = localImg || remoteUrl;
+        return (
+          <Image
+            source={typeof imgSrc === 'number' ? imgSrc : { uri: imgSrc || 'https://via.placeholder.com/300x200' }}
+            style={styles.placeImage}
+            resizeMode="cover"
+          />
+        );
+      })()}
       <View style={styles.placeInfo}>
         <Text style={styles.placeName} numberOfLines={2}>
           {getDisplayName(item)}
