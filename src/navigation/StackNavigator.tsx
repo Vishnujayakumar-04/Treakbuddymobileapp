@@ -36,6 +36,9 @@ import EventsScreen from "../screens/EventsScreen";
 import RentalDetailScreen from "../screens/transit/RentalDetailScreen";
 import TrainDetailScreen from "../screens/transit/TrainDetailScreen";
 import { useAuth } from "../context/AuthContext";
+import FAQScreen from "../screens/FAQScreen";
+import PrivacyPolicyScreen from "../screens/PrivacyPolicyScreen";
+import AboutScreen from "../screens/AboutScreen";
 
 const Stack = createStackNavigator();
 
@@ -377,6 +380,9 @@ export default function StackNavigator() {
               },
             }}
           />
+          <Stack.Screen name="FAQ" component={FAQScreen} />
+          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
         </>
       )}
     </Stack.Navigator>

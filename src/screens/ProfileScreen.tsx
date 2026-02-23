@@ -27,6 +27,7 @@ import {
 import { StoredTrip, StoredFavorite } from '../utils/storage';
 import { spacing, radius } from '../theme/spacing';
 import { EditProfileModal } from '../components/profile/EditProfileModal';
+import { SettingsMenuModal } from '../components/profile/SettingsMenuModal';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
@@ -43,6 +44,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -129,6 +131,14 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               <Text style={styles.userName}>{displayName}</Text>
               <Text style={styles.userEmail}>{userProfile.email}</Text>
             </View>
+
+            <TouchableOpacity
+              style={styles.menuTrigger}
+              onPress={() => setMenuVisible(true)}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+            >
+              <Feather name="more-vertical" size={24} color="#fff" />
+            </TouchableOpacity>
           </View>
 
           {/* Stats Row */}
@@ -187,33 +197,18 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
           )}
         </View>
 
-        {/* Settings */}
+        {/* Edit Profile Quick Access */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚙️ Settings</Text>
+          <Text style={styles.sectionTitle}>⚙️ Profile</Text>
           <View style={styles.menuList}>
-            <TouchableOpacity style={styles.menuRow} onPress={() => setEditModalVisible(true)}>
+            <TouchableOpacity style={[styles.menuRow, { borderBottomWidth: 0 }]} onPress={() => setEditModalVisible(true)}>
               <View style={styles.menuIcon}><Ionicons name="person-outline" size={20} color="#0891b2" /></View>
               <Text style={styles.menuText}>Edit Profile</Text>
               <Feather name="chevron-right" size={18} color="#94a3b8" />
             </TouchableOpacity>
-            <View style={[styles.menuRow, { borderBottomWidth: 0 }]}>
-              <View style={styles.menuIcon}><Ionicons name="moon-outline" size={20} color="#0891b2" /></View>
-              <Text style={styles.menuText}>Dark Mode</Text>
-              <Switch
-                value={isDark}
-                onValueChange={toggleTheme}
-                trackColor={{ false: '#e2e8f0', true: '#0891b2' }}
-                thumbColor="#fff"
-              />
-            </View>
           </View>
         </View>
 
-        {/* Logout */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Feather name="log-out" size={18} color="#ef4444" />
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
       </ScrollView>
 
       <EditProfileModal
@@ -225,6 +220,17 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         currentPhotoUrl={userProfile.profilePhotoUrl || null}
         isDark={isDark}
         onProfileUpdated={refreshUserProfile}
+      />
+
+      <SettingsMenuModal
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        userName={displayName}
+        userEmail={userProfile.email || ''}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
+        onLogout={handleLogout}
+        navigation={navigation}
       />
     </View>
   );
@@ -288,6 +294,12 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flex: 1,
+    paddingRight: 10,
+  },
+  menuTrigger: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   userName: {
     fontSize: 20,
