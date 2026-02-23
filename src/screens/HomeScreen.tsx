@@ -26,10 +26,10 @@ const HERO_IMAGES = [
 ];
 
 const GALLERY_PLACES = () => [
-  { ...(getPlaceById('b1') || { id: 'b1', name: 'Promenade Beach', category: 'beaches', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/Image-1-10_6800d3a4ec9e7.jpg') },
+  { ...(getPlaceById('b1') || { id: 'b1', name: 'Promenade Beach', category: 'beaches', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/assets/beaches/promenade beach.jpg') },
   { ...(getPlaceById('h1') || { id: 'h1', name: 'White Town Walks', category: 'heritage', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/unnamed (1).jpg') },
   { ...(getPlaceById('h2') || { id: 'h2', name: 'Puducherry Museum', category: 'heritage', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/unnamed.jpg') },
-  { ...(getPlaceById('t1') || { id: 't1', name: 'Arulmigu Manakula Vinayagar', category: 'temples', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/arulmigu-manakula-vinayar-puducherry-1-attr-hero.jpg') },
+  { ...(getPlaceById('t1') || { id: 't1', name: 'Arulmigu Manakula Vinayagar', category: 'temples', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/assets/temple/Arulmigu-Manakula-Vinayagar-Temple-Pondicherry-A-Divine-Blend-of-History-Culture-Devotion.jpg') },
 ];
 
 const TESTIMONIALS = [
