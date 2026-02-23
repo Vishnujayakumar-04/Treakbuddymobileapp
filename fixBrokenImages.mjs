@@ -23,11 +23,11 @@ function fixFile(file) {
     for (const [bad, good] of Object.entries(replacements)) {
         content = content.replace(new RegExp(bad.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), good);
     }
-    // Enforce La-Maison specific casing just in case
     content = content.replace(/la maison charu\.webp/gi, 'La-Maison-Charu.webp');
     fs.writeFileSync(file, content);
 }
 
 fixFile('./src/data/categories.ts');
 fixFile('./src/data/places.ts');
-console.log('Fixed broken images in both files!');
+fixFile('./src/screens/FamousPlacesScreen.tsx');
+console.log('Fixed broken images in all files!');

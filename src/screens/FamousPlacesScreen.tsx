@@ -76,11 +76,11 @@ const FAMOUS_PLACES = {
     food: [
         { name: 'Ratatouille', type: 'Vegetarian', restaurant: 'Various French Cafés', image: require('../../assets/web_assets/stay/villa shanti 2.webp') },
         { name: 'Crepes', type: 'Vegetarian', restaurant: 'Café des Arts', image: require('../../assets/web_assets/stay/villa shanti 3.webp') },
-        { name: 'Masala Dosa', type: 'Vegetarian', restaurant: 'Surguru', image: require('../../assets/web_assets/stay/seaside guest house 2.jfif') },
-        { name: 'Kadugu Yerra', type: 'Vegetarian', restaurant: 'Local Eateries', image: require('../../assets/web_assets/stay/seaside guest house 3.jfif') },
-        { name: 'Idiyappam with Coconut Milk', type: 'Vegetarian', restaurant: 'Traditional Restaurants', image: require('../../assets/web_assets/stay/seaside guest house.jfif') },
-        { name: 'Prawn Risotto', type: 'Non-Vegetarian', restaurant: 'Villa Shanti', image: require('../../assets/web_assets/stay/club mahindra 2.jfif') },
-        { name: 'Fish Vindaloo', type: 'Non-Vegetarian', restaurant: 'Coromandel Café', image: require('../../assets/web_assets/stay/club mahindra 3.jfif') },
+        { name: 'Masala Dosa', type: 'Vegetarian', restaurant: 'Surguru', image: require('../../assets/web_assets/stay/ocean spray 2.jfif') },
+        { name: 'Kadugu Yerra', type: 'Vegetarian', restaurant: 'Local Eateries', image: require('../../assets/web_assets/stay/ocean spray 3.jfif') },
+        { name: 'Idiyappam with Coconut Milk', type: 'Vegetarian', restaurant: 'Traditional Restaurants', image: require('../../assets/web_assets/stay/ocean spray.jfif') },
+        { name: 'Prawn Risotto', type: 'Non-Vegetarian', restaurant: 'Villa Shanti', image: require('../../assets/web_assets/stay/le pondy 2.jfif') },
+        { name: 'Fish Vindaloo', type: 'Non-Vegetarian', restaurant: 'Coromandel Café', image: require('../../assets/web_assets/stay/le pondy 3.jfif') },
         { name: 'Chicken Chettinad', type: 'Non-Vegetarian', restaurant: 'Le Dupleix', image: require('../../assets/web_assets/stay/accord 3.jfif') },
     ],
 };

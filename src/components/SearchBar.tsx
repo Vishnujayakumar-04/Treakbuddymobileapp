@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Text } from 'react-native';
 import { spacing, radius } from '../theme/spacing';
 
 interface SearchBarProps {
@@ -22,7 +21,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         onChangeText={onChangeText}
         value={value}
       />
-      <View style={styles.icon}>🔍</View>
+      <Text style={styles.icon}>🔍</Text>
     </View>
   );
 };
