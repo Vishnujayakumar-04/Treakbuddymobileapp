@@ -185,7 +185,7 @@ export default function PlaceDetailsScreen({
 
           <View style={styles.imageContainer}>
             {place.image ? (
-              <Image source={{ uri: place.image }} style={styles.heroImageCover} resizeMode="cover" />
+              <Image source={typeof place.image === 'number' ? place.image : { uri: place.image }} style={styles.heroImageCover} resizeMode="cover" />
             ) : (
               <View style={styles.fallbackHero} />
             )}

@@ -170,7 +170,7 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
         <View style={styles.imageContainer}>
           {item.image || (item.images && item.images.length > 0) ? (
             <Image
-              source={{ uri: item.image || (item.images && item.images[0]) }}
+              source={typeof item.image === 'number' ? item.image : { uri: item.image || (item.images && item.images[0])  }}
               style={styles.imageCover}
               resizeMode="cover"
               onError={() => { }}

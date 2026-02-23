@@ -224,7 +224,7 @@ export default function TheatresScreen({ navigation }: TheatresScreenProps) {
       activeOpacity={0.7}
     >
       <Image
-        source={{ uri: item.images?.[0] || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800' }}
+        source={typeof item.images?.[0] === 'number' ? item.images?.[0] : { uri: item.images?.[0] || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'  }}
         style={styles.theatreImage}
         resizeMode="cover"
       />

@@ -95,7 +95,7 @@ function RentalsTab({ data, navigation }: { data: TransitItem[]; navigation?: an
                   );
                 } else if (provider.image) {
                   return (
-                    <Image source={{ uri: provider.image }} style={styles.rentalImage} resizeMode="cover" />
+                    <Image source={typeof provider.image === 'number' ? provider.image : { uri: provider.image }} style={styles.rentalImage} resizeMode="cover" />
                   );
                 } else {
                   return (

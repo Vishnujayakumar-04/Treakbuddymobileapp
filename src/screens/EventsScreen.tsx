@@ -50,7 +50,7 @@ export default function EventsScreen({ navigation }: EventsScreenProps) {
                 // for now just simple mock.
             }}
         >
-            <Image source={{ uri: item.image }} style={styles.cardImage} />
+            <Image source={typeof item.image === 'number' ? item.image : { uri: item.image }} style={styles.cardImage} />
             <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.8)']}
                 style={styles.cardGradient}

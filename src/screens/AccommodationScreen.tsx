@@ -315,7 +315,7 @@ export default function AccommodationScreen({ navigation }: AccommodationScreenP
     >
       <View style={styles.categoryImageContainer}>
         <Image
-          source={{ uri: item.image }}
+          source={typeof item.image === 'number' ? item.image : { uri: item.image }}
           style={styles.categoryImage}
           resizeMode="cover"
         />
@@ -343,7 +343,7 @@ export default function AccommodationScreen({ navigation }: AccommodationScreenP
     >
       <View style={styles.categoryImageContainer}>
         <Image
-          source={{ uri: item.image }}
+          source={typeof item.image === 'number' ? item.image : { uri: item.image }}
           style={styles.categoryImage}
           resizeMode="cover"
         />
@@ -370,7 +370,7 @@ export default function AccommodationScreen({ navigation }: AccommodationScreenP
       activeOpacity={0.7}
     >
       <Image
-        source={{ uri: item.image || (item.images?.[0]) || 'https://via.placeholder.com/300x200' }}
+        source={typeof item.image === 'number' ? item.image : { uri: item.image || (item.images?.[0]) || 'https://via.placeholder.com/300x200'  }}
         style={styles.placeImage}
         resizeMode="cover"
       />

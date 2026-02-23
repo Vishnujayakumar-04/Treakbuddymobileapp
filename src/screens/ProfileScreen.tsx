@@ -112,7 +112,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             >
               {userProfile.profilePhotoUrl ? (
                 <Image
-                  source={{ uri: userProfile.profilePhotoUrl }}
+                  source={typeof userProfile.profilePhotoUrl === 'number' ? userProfile.profilePhotoUrl : { uri: userProfile.profilePhotoUrl }}
                   style={styles.avatarImage}
                 />
               ) : (
@@ -169,7 +169,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   onPress={() => navigation?.navigate('PlaceDetails', { id: fav.placeId })}
                 >
                   {fav.place?.image ? (
-                    <Image source={{ uri: fav.place.image }} style={styles.favImage} />
+                    <Image source={typeof fav.place.image === 'number' ? fav.place.image : { uri: fav.place.image }} style={styles.favImage} />
                   ) : (
                     <View style={[styles.favImage, { backgroundColor: '#e0f2fe', alignItems: 'center', justifyContent: 'center' }]}>
                       <Ionicons name="image-outline" size={24} color="#0891b2" />

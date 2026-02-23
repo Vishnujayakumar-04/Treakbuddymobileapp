@@ -135,7 +135,7 @@ export default function CategoryScreen({ route, navigation }: CategoryScreenProp
           <View style={styles.imageContainer}>
             {item.image ? (
               <Image
-                source={{ uri: item.image }}
+                source={typeof item.image === 'number' ? item.image : { uri: item.image }}
                 style={styles.imageCover}
                 resizeMode="cover"
                 onError={() => { }}

@@ -242,7 +242,7 @@ export default function ShoppingScreen({ navigation }: ShoppingScreenProps) {
     >
       <View style={styles.categoryImageContainer}>
         <Image
-          source={{ uri: item.image }}
+          source={typeof item.image === 'number' ? item.image : { uri: item.image }}
           style={styles.categoryImage}
           resizeMode="cover"
         />
@@ -269,7 +269,7 @@ export default function ShoppingScreen({ navigation }: ShoppingScreenProps) {
       activeOpacity={0.7}
     >
       <Image
-        source={{ uri: item.images?.[0] || 'https://via.placeholder.com/300x200' }}
+        source={typeof item.images?.[0] === 'number' ? item.images?.[0] : { uri: item.images?.[0] || 'https://via.placeholder.com/300x200'  }}
         style={styles.placeImage}
         resizeMode="cover"
       />
