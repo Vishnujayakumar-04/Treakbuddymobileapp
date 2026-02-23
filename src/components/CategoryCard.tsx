@@ -82,7 +82,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         <View style={styles.card}>
           {/* Image Background */}
           <Image
-            source={(typeof image === 'string' && (image.startsWith('http') || image.startsWith('file://')) ? { uri: image } : image) as any}
+            source={typeof image === 'number' ? image : (typeof image === 'string' ? { uri: image } : image)}
             style={styles.image}
           />
 
