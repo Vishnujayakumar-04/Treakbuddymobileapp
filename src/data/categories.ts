@@ -77,12 +77,12 @@ export const ALL_CATEGORIES: Category[] = [
   {
     id: 'pubs',
     label: 'Pubs / Bars',
-    image: require('../../assets/assets/stay/accord.jfif'),
+    image: require('../../assets/assets/spot/casablanca.jfif'),
     count: '12 places',
     subcategories: [
-      { id: 'pubs-bars', label: 'Pubs & Bars', image: require('../../assets/assets/stay/accord 2.jfif'), parentId: 'pubs' },
-      { id: 'wine-bars', label: 'Wine Bars', image: require('../../assets/assets/stay/accord 3.jfif'), parentId: 'pubs' },
-      { id: 'rooftop-bars', label: 'Rooftop Bars', image: require('../../assets/assets/stay/accord.jfif'), parentId: 'pubs' },
+      { id: 'pubs-bars', label: 'Pubs & Bars', image: require('../../assets/assets/spot/casablanca 2.jfif'), parentId: 'pubs' },
+      { id: 'wine-bars', label: 'Wine Bars', image: require('../../assets/assets/spot/casablanca 3.jfif'), parentId: 'pubs' },
+      { id: 'rooftop-bars', label: 'Rooftop Bars', image: require('../../assets/assets/spot/casablanca.jfif'), parentId: 'pubs' },
     ],
   },
 
@@ -145,13 +145,13 @@ export const ALL_CATEGORIES: Category[] = [
   {
     id: 'nightlife',
     label: 'Nightlife & Evening',
-    image: require('../../assets/assets/stay/accord.jfif'),
+    image: require('../../assets/assets/spot/casablanca 2.jfif'),
     count: '5+ spots',
     subcategories: [
       { id: 'night-markets', label: 'Night Markets', image: require('../../assets/assets/spot/sunday market.jfif'), parentId: 'nightlife' },
       { id: 'night-walks', label: 'Night Walks', image: require('../../assets/assets/spot/white-town-walks.jfif'), parentId: 'nightlife' },
-      { id: 'live-music', label: 'Live Music', image: require('../../assets/assets/stay/accord 2.jfif'), parentId: 'nightlife' },
-      { id: 'beach-bonfires', label: 'Beach Bonfires', image: require('../../assets/assets/stay/accord 3.jfif'), parentId: 'nightlife' },
+      { id: 'live-music', label: 'Live Music', image: require('../../assets/assets/spot/casablanca 3.jfif'), parentId: 'nightlife' },
+      { id: 'beach-bonfires', label: 'Beach Bonfires', image: require('../../assets/assets/beaches/serenity beach.jpg'), parentId: 'nightlife' },
     ],
   },
 
@@ -175,7 +175,7 @@ export const ALL_CATEGORIES: Category[] = [
   {
     id: 'events',
     label: 'Events & Festivals',
-    image: require('../../assets/assets/spot/sunday market.jfif'),
+    image: require('../../assets/assets/spot/barathi park.jfif'),
     count: 'Top Events',
   },
 ];

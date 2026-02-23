@@ -246,7 +246,6 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
           <Text style={styles.placeName} numberOfLines={2}>
             {getDisplayName(item)}
           </Text>
-          <Text style={styles.subType}>{item.subType}</Text>
           <Text style={styles.subType} numberOfLines={1}>{item.subType}</Text>
           <Text style={styles.deity} numberOfLines={1}>{item.mainDeity}</Text>
 

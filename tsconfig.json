@@ -4,6 +4,8 @@
     "strict": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-native",
     "module": "esnext",
     "moduleResolution": "bundler",
     "forceConsistentCasingInFileNames": true
