@@ -249,23 +249,24 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: 'relative',
     marginRight: spacing.md,
-  },
-  avatarImage: {
     width: 72,
     height: 72,
     borderRadius: 36,
     borderWidth: 3,
     borderColor: 'rgba(255,255,255,0.6)',
   },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 36,
+  },
   avatarPlaceholder: {
-    width: 72,
-    height: 72,
+    width: '100%',
+    height: '100%',
     borderRadius: 36,
     backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
   },
   avatarLetter: {
     fontSize: 28,
@@ -274,8 +275,8 @@ const styles = StyleSheet.create({
   },
   editBadge: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
+    bottom: -4,
+    right: -4,
     width: 22,
     height: 22,
     borderRadius: 11,

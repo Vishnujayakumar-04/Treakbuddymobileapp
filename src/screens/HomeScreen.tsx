@@ -5,6 +5,7 @@ import { SectionTitle } from '../components/ui';
 import { CategoryCard } from '../components/CategoryCard';
 import { AutoAwesomeIcon, ChevronRightIcon } from '../components/icons';
 import { getCategoryKey } from '../utils/api';
+import { getPlaceById } from '../data/places';
 import { QUICK_CATEGORIES } from '../data/categories';
 import { spacing, radius } from '../theme/spacing';
 import { shadows } from '../theme/shadows';
@@ -24,11 +25,11 @@ const HERO_IMAGES = [
   require('../../assets/Famousplacesimg/image_2022-07-26_124514583.jpg'),
 ];
 
-const GALLERY_IMAGES = [
-  'https://images.unsplash.com/photo-1596707328604-faed4c53574c?w=400&auto=format&fit=crop&q=60',
-  'https://images.unsplash.com/photo-1548625361-987747e70e3c?w=400&auto=format&fit=crop&q=60',
-  'https://images.unsplash.com/photo-1590050752117-238cb0fb9dbb?w=400&auto=format&fit=crop&q=60',
-  'https://images.unsplash.com/photo-1588523315024-f7b5bc608933?w=400&auto=format&fit=crop&q=60',
+const GALLERY_PLACES = () => [
+  { ...(getPlaceById('b1') || { id: 'b1', name: 'Promenade Beach', category: 'beaches', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/Image-1-10_6800d3a4ec9e7.jpg') },
+  { ...(getPlaceById('h1') || { id: 'h1', name: 'White Town Walks', category: 'heritage', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/unnamed (1).jpg') },
+  { ...(getPlaceById('h2') || { id: 'h2', name: 'Puducherry Museum', category: 'heritage', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/unnamed.jpg') },
+  { ...(getPlaceById('t1') || { id: 't1', name: 'Arulmigu Manakula Vinayagar', category: 'temples', description: '', location: '', rating: 4.5, image: '', tags: [], timeSlot: '' }), imageSource: require('../../assets/Famousplacesimg/arulmigu-manakula-vinayar-puducherry-1-attr-hero.jpg') },
 ];
 
 const TESTIMONIALS = [
@@ -42,6 +43,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
+  const galleryScrollRef = useRef<ScrollView>(null);
 
   // Auto-change hero images with fade animation
   useEffect(() => {
@@ -63,6 +65,24 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     }, 5000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Marquee auto-scroll effect for the Gallery
+  useEffect(() => {
+    let scrollPosition = 0;
+    const itemWidth = 148; // image width 140 + gap 8
+    const maxItems = 4;
+
+    const sliderInterval = setInterval(() => {
+      scrollPosition += itemWidth;
+      const maxScroll = (maxItems * itemWidth) - SCREEN_WIDTH + 60;
+      if (scrollPosition > maxScroll) {
+        scrollPosition = 0;
+      }
+      galleryScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+    }, 2800);
+
+    return () => clearInterval(sliderInterval);
   }, []);
 
   // Entrance animations
@@ -297,18 +317,32 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <Text style={styles.sectionTitle}>Moments from Puducherry</Text>
           <Text style={styles.sectionSubtitle}>A glimpse into the French Riviera of the East</Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryContainer}>
-          {GALLERY_IMAGES.map((img, idx) => (
-            <Animated.Image
+        <ScrollView
+          ref={galleryScrollRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.galleryContainer}
+        >
+          {GALLERY_PLACES().map((placeObj, idx) => (
+            <TouchableOpacity
               key={idx}
-              source={{ uri: img }}
-              style={[styles.galleryImage, { opacity: slideAnim }]}
-            />
+              activeOpacity={0.9}
+              onPress={() => navigation?.navigate('PlaceDetails', { place: placeObj })}
+              style={{ position: 'relative', overflow: 'hidden', borderRadius: radius.lg }}
+            >
+              <Animated.Image
+                source={placeObj.imageSource}
+                style={[styles.galleryImage, { opacity: slideAnim }]}
+              />
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.8)']}
+                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8, paddingTop: 20 }}
+              >
+                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }} numberOfLines={1}>{placeObj.name}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           ))}
         </ScrollView>
-
-
-
         {/* CTA Button */}
         <TouchableOpacity
           style={styles.ctaButton}
@@ -326,8 +360,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Bottom Spacing - Reduced from 100 to 20 per user request to remove empty void */}
-        <View style={{ height: 20 }} />
+        {/* Padding to allow scrolling completely above bottom tab bar */}
+        <View style={{ height: 80 }} />
       </ScrollView>
 
       {/* Floating AI Button */}
@@ -486,7 +520,7 @@ const styles = StyleSheet.create({
   },
   galleryContainer: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.sm,
     gap: spacing.sm,
   },
   galleryImage: {

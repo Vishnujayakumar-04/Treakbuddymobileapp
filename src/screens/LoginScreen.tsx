@@ -213,10 +213,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: STATUSBAR_HEIGHT + 32, // increased a bit so it's not too high
+    paddingTop: STATUSBAR_HEIGHT + 8,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
-    justifyContent: 'center', // changed from space-between so they group together
+    justifyContent: 'center',
   },
   headerSection: {
     marginBottom: 0,

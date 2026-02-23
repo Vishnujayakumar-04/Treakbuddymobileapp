@@ -27,12 +27,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const IMAGE_WIDTH = SCREEN_WIDTH * 0.7;
 
 const MARQUEE_IMAGES = [
-  'https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=800&q=80',
-  'https://images.unsplash.com/photo-1582255655519-7b3b6f0430f8?w=800&q=80',
-  'https://images.unsplash.com/photo-1582443168850-6e1ea092647b?w=800&q=80',
-  'https://images.unsplash.com/photo-1623835606828-09553e77c8e3?w=800&q=80',
-  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-  'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80',
+  require('../../assets/web_assets/beaches/promenade beach.jpg'),
+  require('../../assets/web_assets/stay/villa shanti.webp'),
+  require('../../assets/web_assets/spot/aayi mandapam.jfif'),
+  require('../../assets/web_assets/spot/museum.jfif'),
+  require('../../assets/web_assets/beaches/paradise beach.jpeg'),
+  require('../../assets/web_assets/activity/mangrove kayaking.jfif'),
 ];
 
 interface ExploreScreenProps {
@@ -122,7 +122,7 @@ export default function ExploreScreen({ navigation }: ExploreScreenProps) {
               {/* Duplicate array for seamless infinite looping */}
               {[...MARQUEE_IMAGES, ...MARQUEE_IMAGES].map((img, idx) => (
                 <View key={idx} style={styles.marqueeImageContainer}>
-                  <Image source={{ uri: img }} style={styles.marqueeImage} />
+                  <Image source={img as any} style={styles.marqueeImage} />
                 </View>
               ))}
             </Animated.View>

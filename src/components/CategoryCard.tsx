@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { TouchableOpacity, View, Text, Image, StyleSheet, Animated, Dimensions } from 'react-native';
+import { TouchableOpacity, View, Text, Image, StyleSheet, Animated, Dimensions, ImageSourcePropType } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { spacing, radius } from '../theme/spacing';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface CategoryCardProps {
-  image: string;
+  image: ImageSourcePropType | string;
   label: string;
   onPress: () => void;
   index?: number;
@@ -82,7 +82,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         <View style={styles.card}>
           {/* Image Background */}
           <Image
-            source={{ uri: image }}
+            source={(typeof image === 'string' && (image.startsWith('http') || image.startsWith('file://')) ? { uri: image } : image) as any}
             style={styles.image}
           />
 
@@ -104,10 +104,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
               </View>
             )}
             <View style={styles.content}>
-              {/* Emoji Badge floating top left of content */}
-              <View style={styles.emojiContainer}>
-                <Text style={styles.emojiText}>{emoji}</Text>
-              </View>
 
               {/* Label */}
               <View style={styles.labelContainer}>

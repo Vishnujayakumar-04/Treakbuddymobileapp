@@ -20,51 +20,70 @@ import { PLACES_DATA } from '../data/places';
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const FAMOUS_PLACE_NAMES = {
-    historical: ['French War Memorial', 'Aayi Mandapam', 'Bharathi Park', 'Arikamedu Archaeological Site', 'Kargil War Memorial', 'Raj Niwas'],
-    temples: ['Manakula Vinayagar Temple', 'Varadaraja Perumal Temple', 'Kamakshi Amman Temple', 'Vedapureeswarar Temple', 'Arulmigu Kanniga Parameswari Temple'],
-    nature: ['Paradise Beach', 'Auroville Beach', 'Serenity Beach', 'Ousteri Lake', 'Botanical Gardens', 'Pichavaram Mangroves'],
-    churches: ['Sacred Heart Basilica', 'Immaculate Conception Cathedral', 'Our Lady of Angels Church', "St. Andrew's Church"],
-    popular: ['Promenade Beach', 'Sri Aurobindo Ashram', 'Matrimandir', 'Puducherry Museum', 'White Town Walks', 'Chunnambar Backwater', 'Serenity Beach'],
+const generatePlace = (name: string, location: string, imageModule: any, category: string) => ({
+    id: `famous_${name.replace(/\s+/g, '').toLowerCase()}`,
+    name,
+    location,
+    category,
+    image: imageModule,
+    rating: 4.8,
+    description: `A celebrated ${category} spot nestled in ${location}. Experience the history, culture, and beauty of ${name}, a must-visit destination in Puducherry.`,
+    tags: ['Famous', 'Must Visit', category],
+    timeSlot: 'Morning to Evening',
+});
+
+const FAMOUS_PLACES = {
+    historical: [
+        generatePlace('French War Memorial', 'Goubert Avenue', require('../../assets/web_assets/spot/french wa rmemorial.jfif'), 'Historical Sites'),
+        generatePlace('Aayi Mandapam', 'White Town', require('../../assets/web_assets/spot/aayi mandapam.jfif'), 'Historical Sites'),
+        generatePlace('Bharathi Park', 'White Town', require('../../assets/web_assets/spot/barathi park.jfif'), 'Historical Sites'),
+        generatePlace('Arikamedu Archaeological Site', 'Arikamedu', require('../../assets/web_assets/spot/museum.jfif'), 'Historical Sites'),
+        generatePlace('Kargil War Memorial', 'Shanmugha Vilasam', require('../../assets/web_assets/spot/french wa rmemorial 2.jfif'), 'Historical Sites'),
+        generatePlace('Raj Niwas', 'White Town', require('../../assets/web_assets/spot/white town walks.jfif'), 'Historical Sites'),
+    ],
+    temples: [
+        generatePlace('Manakula Vinayagar Temple', 'White Town', require('../../assets/web_assets/spot/aayi mandapam 2.jfif'), 'Temples'),
+        generatePlace('Varadaraja Perumal Temple', 'Near French Consulate', require('../../assets/web_assets/spot/white town walks 2.jfif'), 'Temples'),
+        generatePlace('Kamakshi Amman Temple', 'Near Beach', require('../../assets/web_assets/spot/aayi mandapam.jfif'), 'Temples'),
+        generatePlace('Vedapureeswarar Temple', 'Near Serenity Beach', require('../../assets/web_assets/spot/white town walks 3.jfif'), 'Temples'),
+        generatePlace('Arulmigu Kanniga Parameswari Temple', 'Kuruchikuppam', require('../../assets/web_assets/spot/museum 2.jfif'), 'Temples'),
+    ],
+    nature: [
+        generatePlace('Paradise Beach', 'Chunnambar', require('../../assets/web_assets/beaches/paradise beach.jpeg'), 'Nature & Wildlife'),
+        generatePlace('Auroville Beach', 'Auroville', require('../../assets/web_assets/beaches/auroville beach.jpg'), 'Nature & Wildlife'),
+        generatePlace('Serenity Beach', 'Auroville Road', require('../../assets/web_assets/beaches/serenity beach.jpg'), 'Nature & Wildlife'),
+        generatePlace('Ousteri Lake', 'Ossudu', require('../../assets/web_assets/activity/mangrove kayaking.jfif'), 'Nature & Wildlife'),
+        generatePlace('Botanical Gardens', 'Near Railway Station', require('../../assets/web_assets/spot/botanical garden.jfif'), 'Nature & Wildlife'),
+        generatePlace('Pichavaram Mangroves', 'Near Chidambaram', require('../../assets/web_assets/activity/mangrove kayaking 2.jfif'), 'Nature & Wildlife'),
+        generatePlace('Bharathi Park', 'White Town', require('../../assets/web_assets/spot/barathi park.jfif'), 'Nature & Wildlife'),
+    ],
+    churches: [
+        generatePlace('Sacred Heart Basilica', 'Subbaiah Salai', require('../../assets/web_assets/spot/museum.jfif'), 'Churches'),
+        generatePlace('Immaculate Conception Cathedral', 'Mission Street', require('../../assets/web_assets/spot/white town walks 3.jfif'), 'Churches'),
+        generatePlace('Our Lady of Angels Church', 'Rue Dumas', require('../../assets/web_assets/spot/aayi mandapam 2.jfif'), 'Churches'),
+        generatePlace("St. Andrew's Church", 'Church Street', require('../../assets/web_assets/spot/french wa rmemorial 3.jfif'), 'Churches'),
+    ],
+    popular: [
+        generatePlace('Promenade Beach', 'Beach Road', require('../../assets/web_assets/beaches/promenade beach.jpg'), 'Popular Places'),
+        generatePlace('Sri Aurobindo Ashram', 'Marine Street', require('../../assets/web_assets/stay/villa shanti.webp'), 'Popular Places'),
+        generatePlace('Matrimandir', 'Auroville', require('../../assets/web_assets/beaches/auroville beach.jpg'), 'Popular Places'),
+        generatePlace('Puducherry Museum', 'Bharathi Park', require('../../assets/web_assets/spot/museum.jfif'), 'Popular Places'),
+        generatePlace('White Town Walks', 'French Quarter', require('../../assets/web_assets/spot/white town walks.jfif'), 'Popular Places'),
+        generatePlace('Chunnambar Backwater', 'Chunnambar', require('../../assets/web_assets/beaches/paradise beach.jpeg'), 'Popular Places'),
+        generatePlace('Serenity Beach', 'Kottakuppam', require('../../assets/web_assets/beaches/serenity beach.jpg'), 'Popular Places'),
+        generatePlace('Paradise Beach', 'Chunnambar', require('../../assets/web_assets/beaches/paradise beach.jpeg'), 'Popular Places'),
+    ],
     food: [
-        { name: 'Ratatouille', type: 'Vegetarian', restaurant: 'Various French Cafés', image: 'https://images.unsplash.com/photo-1572453800999-e8d2d1589b7c?w=800' },
-        { name: 'Crepes', type: 'Vegetarian', restaurant: 'Café des Arts', image: 'https://images.unsplash.com/photo-1519671282429-b4b6600f4a93?w=800' },
-        { name: 'Masala Dosa', type: 'Vegetarian', restaurant: 'Surguru', image: 'https://images.unsplash.com/photo-1589301760014-d929f39ce9b1?w=800' },
-        { name: 'Kadugu Yerra', type: 'Vegetarian', restaurant: 'Local Eateries', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800' },
-        { name: 'Idiyappam with Coconut Milk', type: 'Vegetarian', restaurant: 'Traditional Restaurants', image: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=800' },
-        { name: 'Prawn Risotto', type: 'Non-Vegetarian', restaurant: 'Villa Shanti', image: 'https://images.unsplash.com/photo-1626785501863-1456bfbc50d2?w=800' },
-        { name: 'Fish Vindaloo', type: 'Non-Vegetarian', restaurant: 'Coromandel Café', image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800' },
-        { name: 'Chicken Chettinad', type: 'Non-Vegetarian', restaurant: 'Le Dupleix', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800' },
+        { name: 'Ratatouille', type: 'Vegetarian', restaurant: 'Various French Cafés', image: require('../../assets/web_assets/stay/villa shanti 2.webp') },
+        { name: 'Crepes', type: 'Vegetarian', restaurant: 'Café des Arts', image: require('../../assets/web_assets/stay/villa shanti 3.webp') },
+        { name: 'Masala Dosa', type: 'Vegetarian', restaurant: 'Surguru', image: require('../../assets/web_assets/stay/seaside guest house 2.jfif') },
+        { name: 'Kadugu Yerra', type: 'Vegetarian', restaurant: 'Local Eateries', image: require('../../assets/web_assets/stay/seaside guest house 3.jfif') },
+        { name: 'Idiyappam with Coconut Milk', type: 'Vegetarian', restaurant: 'Traditional Restaurants', image: require('../../assets/web_assets/stay/seaside guest house.jfif') },
+        { name: 'Prawn Risotto', type: 'Non-Vegetarian', restaurant: 'Villa Shanti', image: require('../../assets/web_assets/stay/club mahindra 2.jfif') },
+        { name: 'Fish Vindaloo', type: 'Non-Vegetarian', restaurant: 'Coromandel Café', image: require('../../assets/web_assets/stay/club mahindra 3.jfif') },
+        { name: 'Chicken Chettinad', type: 'Non-Vegetarian', restaurant: 'Le Dupleix', image: require('../../assets/web_assets/stay/accord 3.jfif') },
     ],
 };
-
-const getFamousPlacesWrapper = () => {
-    const mapNames = ((names: string[]) => {
-        return names.map(n => {
-            const place = PLACES_DATA.find(p => p.name.toLowerCase() === n.toLowerCase());
-            if (place) return place;
-            return {
-                id: n,
-                name: n,
-                location: 'Puducherry',
-                image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800',
-                rating: 4.5,
-                description: 'Famous tourist spot in Puducherry.'
-            };
-        });
-    });
-
-    return {
-        historical: mapNames(FAMOUS_PLACE_NAMES.historical),
-        temples: mapNames(FAMOUS_PLACE_NAMES.temples),
-        nature: mapNames(FAMOUS_PLACE_NAMES.nature),
-        churches: mapNames(FAMOUS_PLACE_NAMES.churches),
-        popular: mapNames(FAMOUS_PLACE_NAMES.popular),
-        food: FAMOUS_PLACE_NAMES.food
-    };
-};
-
-const FAMOUS_PLACES = getFamousPlacesWrapper();
 
 const CATEGORIES = [
     { id: 'popular', label: 'Top Hits', emoji: '🌟', count: FAMOUS_PLACES.popular.length },

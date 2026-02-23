@@ -86,7 +86,7 @@ if (typeof global !== 'undefined') {
     const errorStack = error?.stack || '';
     const errorName = error?.name || '';
     const lowerMessage = `${errorMessage} ${errorStack} ${errorName}`.toLowerCase();
-    
+
     if (
       lowerMessage.includes('failed to download remote update') ||
       lowerMessage.includes('java.io.ioexception') ||
@@ -110,19 +110,52 @@ if (typeof global !== 'undefined') {
   };
 }
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
+
 function AppContent() {
   const { loading } = useAuth();
   const { isDark } = useTheme();
-  if (loading) {
+
+  const [isReady, ReactSetIsReady] = React.useState(false);
+  const [initialState, setInitialState] = React.useState(undefined);
+
+  React.useEffect(() => {
+    const restoreState = async () => {
+      try {
+        const savedStateString = await AsyncStorage.getItem(PERSISTENCE_KEY);
+        const state = savedStateString ? JSON.parse(savedStateString) : undefined;
+        if (state !== undefined) {
+          setInitialState(state);
+        }
+      } catch (e) {
+        // Ignore
+      } finally {
+        ReactSetIsReady(true);
+      }
+    };
+    if (!isReady) {
+      restoreState();
+    }
+  }, [isReady]);
+
+  if (loading || !isReady) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: '#FFFFFF' }]}>
+      <View style={[styles.loadingContainer, { backgroundColor: '#FFFFFF', flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color="#0E7C86" />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      initialState={initialState}
+      onStateChange={(state) => {
+        if (state) {
+          AsyncStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state));
+        }
+      }}
+    >
       <StackNavigator />
     </NavigationContainer>
   );
