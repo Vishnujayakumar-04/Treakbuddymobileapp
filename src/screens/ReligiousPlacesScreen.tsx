@@ -168,14 +168,17 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
         activeOpacity={0.8}
       >
         <View style={styles.imageContainer}>
-          {item.image || (item.images && item.images.length > 0) ? (
-            <Image
-              source={typeof item.image === 'number' ? item.image : { uri: item.image || (item.images && item.images[0])  }}
-              style={styles.imageCover}
-              resizeMode="cover"
-              onError={() => { }}
-            />
-          ) : (
+          {(item.images && item.images.length > 0) || item.image ? (() => {
+            const imgSrc = (item.images && item.images.length > 0) ? item.images[0] : item.image;
+            return (
+              <Image
+                source={typeof imgSrc === 'number' ? imgSrc : { uri: imgSrc }}
+                style={styles.imageCover}
+                resizeMode="cover"
+                onError={() => { }}
+              />
+            );
+          })() : (
             <View style={styles.fallbackImage} />
           )}
           <View style={styles.ratingBadge}>
