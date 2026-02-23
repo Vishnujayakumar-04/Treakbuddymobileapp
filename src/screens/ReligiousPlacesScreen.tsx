@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { ArrowBackIcon, LanguageIcon } from '../components/icons';
 import { getAllReligionData, ReligionPlace, ReligionType, SubType, getSubTypesForReligion } from '../data/religion/religionDataFetcher';
+import { PLACES_DATA } from '../data/places';
 import { Place } from '../utils/api';
 import { spacing, radius } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -87,12 +88,25 @@ export default function ReligiousPlacesScreen({ navigation }: ReligiousPlacesScr
     setFilteredPlaces(filtered);
   }, [selectedReligion, selectedSubType, places]);
 
+  // Helper: look up local image from places.ts by name match
+  const getLocalImage = (placeName: string) => {
+    const match = PLACES_DATA.find(
+      p => p.name.toLowerCase().trim() === placeName.toLowerCase().trim()
+    );
+    return match?.image || null;
+  };
+
   const handlePlacePress = (place: ReligionPlace) => {
+    const displayName = getDisplayName(place);
+    // Use local image from places.ts if available, else fall back to JSON URL
+    const localImage = getLocalImage(place.name) || getLocalImage(displayName);
+    const fallbackImage = place.image || (place.images && place.images.length > 0 ? place.images[0] : '');
+
     // Convert ReligionPlace to Place format for PlaceDetailsScreen
     const placeForDetails: Place = {
       id: place.id,
-      name: getDisplayName(place),
-      image: place.image || (place.images && place.images.length > 0 ? place.images[0] : ''),
+      name: displayName,
+      image: localImage || fallbackImage,
       description: getDisplayDescription(place),
       opening: place.timing || (place.openingTimeWeekdays ? `${place.openingTimeWeekdays} - ${place.closingTimeWeekdays}` : 'Open Daily'),
       entryFee: place.price || place.entryFee || 'Free',
