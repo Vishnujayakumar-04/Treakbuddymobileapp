@@ -1,0 +1,15 @@
+{
+  "extends": "expo/tsconfig.base.json",
+  "compilerOptions": {
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": [
+    "website",
+    "node_modules"
+  ]
+}
