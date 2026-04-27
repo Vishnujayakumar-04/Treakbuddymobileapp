@@ -12,6 +12,7 @@
   },
   "exclude": [
     "website",
+    "trekbuddy",
     "node_modules"
   ]
 }

@@ -298,7 +298,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 8,
-        marginBottom: 'auto',
     },
     badgeText: {
         fontSize: 10,
@@ -308,7 +307,8 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     cardContent: {
-        marginTop: 'auto',
+        flex: 1,
+        justifyContent: 'flex-end',
     },
     tripTitle: {
         fontSize: 22,

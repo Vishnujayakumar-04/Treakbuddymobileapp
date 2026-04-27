@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "nightlife.json-mock-1",
+    "name": "Sample nightlife",
+    "image": "https://images.unsplash.com/photo-1596395819057-e37f55a8516b?w=800&q=80",
+    "description": {
+      "specialFeatures": "This is a sample entry for nightlife. More details will be added soon."
+    },
+    "opening": "9:00 AM - 6:00 PM",
+    "entryFee": "Free",
+    "rating": 4.5,
+    "mapUrl": "https://maps.google.com/?q=Puducherry"
+  },
+  {
+    "id": "nightlife.json-mock-2",
+    "name": "Another nightlife",
+    "image": "https://images.unsplash.com/photo-1596395819057-e37f55a8516b?w=800&q=80",
+    "description": {
+      "specialFeatures": "This is a sample entry for nightlife. More details will be added soon."
+    },
+    "opening": "9:00 AM - 6:00 PM",
+    "entryFee": "Free",
+    "rating": 4.5,
+    "mapUrl": "https://maps.google.com/?q=Puducherry"
+  }
+]

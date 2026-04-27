@@ -182,17 +182,17 @@ export default function SettingsScreen({ navigation, route }: SettingsScreenProp
         <View style={[styles.section, { backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }]}>
           <View style={styles.sectionHeader}>
             <KeyIcon size={24} color={'#0E7C86'} />
-            <Text style={[styles.sectionTitle, { color: '#000000' }]}>Gemini API Key</Text>
+            <Text style={[styles.sectionTitle, { color: '#000000' }]}>Groq API Key</Text>
           </View>
           <Text style={[styles.sectionDescription, { color: '#666666' }]}>
-            Enter your Google Gemini API key to enable AI travel recommendations.
-            Get your key from Google AI Studio.
+            Enter your Groq API key to enable AI travel recommendations.
+            Get your key from console.groq.com.
           </Text>
 
           <View style={styles.inputContainer}>
             <TextInput
               style={[styles.input, { backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', color: '#000000' }]}
-              placeholder="Enter your Gemini API key"
+              placeholder="Enter your Groq API key"
               placeholderTextColor={'#666666'}
               value={apiKey}
               onChangeText={setApiKey}
@@ -258,6 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
+    borderColor: '#E2E8F0',
   },
   backButton: {
     marginRight: spacing.md,

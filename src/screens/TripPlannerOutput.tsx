@@ -20,8 +20,7 @@ import { spacing, radius } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { LottieAnimation } from '../components/LottieAnimation';
 import { LOTTIE_ANIMATIONS } from '../assets/lottie/animations';
-import { db } from '../firebase/firestore';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { saveTrip } from '../utils/storage';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
@@ -51,26 +50,30 @@ export default function TripPlannerOutput({ route, navigation }: TripPlannerOutp
     setIsSaving(true);
     try {
       const tripToSave = {
+        id: Date.now().toString() + Math.random().toString(36).substring(7),
         userId: user.uid,
         name: tripData.name || 'Puducherry Adventure',
         type: tripData.type || 'Custom Trip',
         places: itinerary.reduce((acc, curr) => acc + curr.activities.length, 0),
         status: 'planned',
-        createdAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
+        startDate: itinerary.length > 0 ? itinerary[0].date : new Date().toISOString(),
+        endDate: itinerary.length > 0 ? itinerary[itinerary.length - 1].date : new Date().toISOString(),
         budgetType: tripData.budgetType,
         budgetAmount: tripData.budgetAmount,
+        budget: tripData.budgetAmount,
+        travelMode: 'mixed',
         travelers: tripData.travelers,
         pace: tripData.pace,
+        categories: tripData.interests,
         interests: tripData.interests,
-        itinerary: itinerary.map(day => ({
-          dayNumber: day.dayNumber,
-          date: day.date,
-          notes: day.notes,
-          activities: day.activities
-        }))
+        itinerary: itinerary.reduce((acc, curr, idx) => {
+          acc[String(idx + 1)] = curr;
+          return acc;
+        }, {} as any)
       };
 
-      await addDoc(collection(db, 'users', user.uid, 'trips'), tripToSave);
+      await saveTrip(tripToSave as any);
 
       setIsSaved(true);
       setTimeout(() => {

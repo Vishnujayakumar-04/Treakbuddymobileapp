@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "famous-places.json-mock-1",
+    "name": "Sample famous places",
+    "image": "https://images.unsplash.com/photo-1596395819057-e37f55a8516b?w=800&q=80",
+    "description": {
+      "specialFeatures": "This is a sample entry for famous-places. More details will be added soon."
+    },
+    "opening": "9:00 AM - 6:00 PM",
+    "entryFee": "Free",
+    "rating": 4.5,
+    "mapUrl": "https://maps.google.com/?q=Puducherry"
+  },
+  {
+    "id": "famous-places.json-mock-2",
+    "name": "Another famous-places",
+    "image": "https://images.unsplash.com/photo-1596395819057-e37f55a8516b?w=800&q=80",
+    "description": {
+      "specialFeatures": "This is a sample entry for famous-places. More details will be added soon."
+    },
+    "opening": "9:00 AM - 6:00 PM",
+    "entryFee": "Free",
+    "rating": 4.5,
+    "mapUrl": "https://maps.google.com/?q=Puducherry"
+  }
+]

@@ -16,9 +16,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 import { useAuth } from '../context/AuthContext';
+import { resetPassword } from '../utils/auth';
 import { spacing, radius } from '../theme/spacing';
-
-const BP_IMAGE = 'https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=1200&q=80';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
 
@@ -55,6 +54,23 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       await signInWithGoogle();
     } catch (error: any) {
       Alert.alert('Google Sign-In Failed', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Email Required', 'Please enter your email address first to reset your password.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      await resetPassword(email);
+      Alert.alert('Success', 'Password reset email sent! Please check your inbox.');
+    } catch (error: any) {
+      Alert.alert('Reset Failed', error.message || 'Could not send reset email. Please verify your email address.');
     } finally {
       setLoading(false);
     }
@@ -143,7 +159,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                   </View>
                 </View>
 
-                <TouchableOpacity style={styles.forgotPassBtn}>
+                <TouchableOpacity style={styles.forgotPassBtn} onPress={handleForgotPassword}>
                   <Text style={styles.forgotPassText}>Forgot Password?</Text>
                 </TouchableOpacity>
 
