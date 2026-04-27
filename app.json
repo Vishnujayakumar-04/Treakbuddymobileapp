@@ -8,7 +8,7 @@
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -24,26 +24,25 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0E7C86"
-      },
-      "edgeToEdgeEnabled": true
+      }
     },
     "extra": {
-      "googleApiKey": "AIzaSyABoZ79QGASXwLm5EDVz19ZRjXJIsIIc4k",
       "firebase": {
         "apiKey": "AIzaSyCRVuHFtiY8h4269v1a-T4nHMKLhsC-t_0",
         "authDomain": "trekbuddy-72b01.firebaseapp.com",
         "projectId": "trekbuddy-72b01",
-        "storageBucket": "trekbuddy-72b01.appspot.com",
+        "storageBucket": "trekbuddy-72b01.firebasestorage.app",
         "messagingSenderId": "512827597054",
         "appId": "1:512827597054:web:a01e3ff2f07534446c85af",
         "measurementId": "G-ZJQ3YQ287N"
       },
       "eas": {
-        "projectId": "a8c5957e-c1a5-4dc5-9129-36e48f588d60"
+        "projectId": "b3de3377-c21e-4fb1-a4cc-172333163838"
       }
     },
     "plugins": [
       "expo-web-browser"
-    ]
+    ],
+    "owner": "trekbuddy"
   }
 }

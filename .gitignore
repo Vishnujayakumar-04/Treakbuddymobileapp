@@ -1,4 +1,4 @@
-﻿node_modules/
+node_modules/
 .expo/
 dist/
 npm-debug.*
@@ -12,7 +12,36 @@ veda/
 .idea/
 *.iml
 .DS_Store
+
+# Environment variables
 *.env
 .env
 .env.*
 !.env.example
+
+# Log files
+*.log
+imageSources.log
+textErrors.log
+
+# Data Collection folder (raw Excel/data files)
+Data Collection/
+
+# Scratch / one-off helper scripts
+findImages.js
+fixBrokenImages.mjs
+fixImageCasting.js
+runAST.js
+syncData.mjs
+test-images.js
+test-raw-groq.mjs
+verifyImages.mjs
+read_excel.js
+findTextError.mjs
+
+# Build output
+android/
+ios/
+
+# Editor directories
+.vscode/

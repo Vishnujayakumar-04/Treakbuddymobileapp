@@ -1,44 +1,56 @@
-# TrekBuddy - Mobile Tourism Guide App
+# TrekBuddy — Mobile Tourism Guide App
 
-**An AI-Powered Mobile Tourism Guide Application for Puducherry**
+**An AI-Powered Mobile Tourism Guide Application for Puducherry (Pondicherry), India**
+
+Built with React Native + Expo, Firebase, and Groq AI.
 
 ---
 
-## Prerequisites
+## 📋 Prerequisites
 
 Before running the project, ensure you have the following installed:
 
-1. **Node.js** (v16 or higher)
+1. **Node.js** (v18 or higher)
    - Download from: https://nodejs.org/
-   - Verify installation: `node --version`
+   - Verify: `node --version`
 
 2. **npm** (comes with Node.js)
-   - Verify installation: `npm --version`
+   - Verify: `npm --version`
 
-3. **Expo CLI** (install globally)
-   ```bash
-   npm install -g expo-cli
-   ```
-   Or use npx (no global install needed)
-
-4. **Expo Go App** (for testing on physical device)
+3. **Expo Go App** (for testing on physical device)
    - **Android**: [Google Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
    - **iOS**: [App Store](https://apps.apple.com/app/expo-go/id982107779)
 
-5. **Android Studio** (for Android emulator - optional)
-   - Download from: https://developer.android.com/studio
+4. **Android Studio** (for Android emulator — optional)
 
-6. **Xcode** (for iOS simulator - macOS only - optional)
-   - Download from: Mac App Store
+5. **Xcode** (for iOS simulator — macOS only — optional)
 
 ---
 
-## Installation Steps
+## ⚙️ Environment Setup
+
+1. Copy the example env file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Fill in your API keys in `.env`:
+   ```env
+   EXPO_PUBLIC_FIREBASE_API_KEY="your-firebase-key"
+   EXPO_PUBLIC_GROQ_API_KEY="your-groq-key"
+   ```
+
+   - **Firebase key**: [Firebase Console](https://console.firebase.google.com) → Project Settings → Your Apps
+   - **Groq key**: [Groq Console](https://console.groq.com) → API Keys
+
+---
+
+## 🚀 Installation & Running
 
 ### 1. Navigate to Project Directory
 
 ```bash
-cd d:\TrekBuddy
+cd d:\TrekBuddymobileapp
 ```
 
 ### 2. Install Dependencies
@@ -47,267 +59,126 @@ cd d:\TrekBuddy
 npm install
 ```
 
-This will install all required packages listed in `package.json`.
+> If you encounter peer-dependency errors:
+> ```bash
+> npm install --legacy-peer-deps
+> ```
 
-**Note:** If you encounter any errors, try:
-```bash
-npm install --legacy-peer-deps
-```
-
-### 3. Verify Installation
-
-Check if all dependencies are installed:
-```bash
-npm list --depth=0
-```
-
----
-
-## Running the Application
-
-### Option 1: Start Development Server (Recommended)
+### 3. Start the Development Server
 
 ```bash
 npm start
 ```
 
-or
+This starts the Metro bundler and shows a QR code in the terminal.
 
-```bash
-expo start
-```
+### Run on Specific Platform
 
-This will:
-- Start the Metro bundler
-- Open Expo DevTools in your browser
-- Display a QR code in the terminal
+| Platform | Command |
+|---|---|
+| Android emulator | `npm run android` |
+| iOS simulator (macOS) | `npm run ios` |
+| Web browser | `npm run web` |
+| Tunnel (for firewall/VPN issues) | `npm run start:tunnel` |
 
-### Option 2: Run on Android
+### Scan QR Code (Physical Device)
 
-**Using Android Emulator:**
-```bash
-npm run android
-```
-
-**Using Physical Device:**
-1. Start the dev server: `npm start`
-2. Open Expo Go app on your Android device
-3. Scan the QR code displayed in terminal/browser
-
-### Option 3: Run on iOS (macOS only)
-
-**Using iOS Simulator:**
-```bash
-npm run ios
-```
-
-**Using Physical Device:**
-1. Start the dev server: `npm start`
-2. Open Expo Go app on your iPhone
-3. Scan the QR code displayed in terminal/browser
-
-### Option 4: Run on Web Browser
-
-```bash
-npm run web
-```
-
-This will open the app in your default web browser.
+1. Open **Expo Go** on your phone
+2. Scan the QR code shown in the terminal
 
 ---
 
-## Development Server Options
-
-When you run `npm start`, you'll see a menu with options:
-
-- Press `a` - Open on Android emulator/device
-- Press `i` - Open on iOS simulator/device
-- Press `w` - Open in web browser
-- Press `r` - Reload the app
-- Press `m` - Toggle menu
-- Press `j` - Open debugger
-- Press `c` - Clear cache
-
----
-
-## Troubleshooting
-
-### Issue: Metro bundler not starting
-
-**Solution:**
-```bash
-# Clear cache and restart
-expo start -c
-```
-
-### Issue: Dependencies not installing
-
-**Solution:**
-```bash
-# Delete node_modules and package-lock.json
-rm -rf node_modules package-lock.json
-
-# Reinstall
-npm install
-```
-
-### Issue: Port already in use
-
-**Solution:**
-```bash
-# Kill process on port 8081 (default Expo port)
-# Windows:
-netstat -ano | findstr :8081
-taskkill /PID <PID> /F
-
-# Or use a different port:
-expo start --port 8082
-```
-
-### Issue: Android emulator not detected
-
-**Solution:**
-1. Open Android Studio
-2. Start AVD Manager
-3. Create/Start an Android Virtual Device
-4. Ensure Android SDK is properly configured
-
-### Issue: iOS simulator not working (macOS)
-
-**Solution:**
-1. Install Xcode from App Store
-2. Open Xcode and accept license agreement
-3. Install iOS Simulator from Xcode preferences
-
-### Issue: Expo Go app not connecting ("java.io.IOException: Failed to download remote update")
-
-**Solution:**
-This usually happens due to network restrictions or firewall issues.
-1. Use the tunnel connection (bypasses local network):
-   ```bash
-   npm run start:tunnel
-   ```
-2. Ensure you have `@expo/ngrok` installed globally:
-   ```bash
-   npm install -g @expo/ngrok
-   ```
-3. Ensure phone and computer are on the same Wi-Fi network (if not using tunnel).
-
----
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-TrekBuddy/
+TrekBuddymobileapp/
 ├── assets/              # Images, icons, logos
 ├── src/
 │   ├── components/      # Reusable UI components
-│   ├── data/            # JSON data files
-│   ├── navigation/      # Navigation configuration
-│   ├── screens/         # Screen components
-│   ├── theme/           # Colors, typography, spacing
-│   └── utils/           # Utility functions
+│   ├── context/         # React Context providers (Auth, Theme, Language)
+│   ├── data/            # Local JSON and TypeScript data files
+│   ├── firebase/        # Firebase configuration & auth helpers
+│   ├── hooks/           # Custom React hooks (animations)
+│   ├── navigation/      # Stack + Tab navigator setup
+│   ├── screens/         # 36 screen components
+│   ├── services/        # AI Planner, Image Search, Transit services
+│   ├── theme/           # Colors, typography, spacing, shadows
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Firestore helpers, storage, auth utils
+├── trekbuddy/           # Website scaffold (Expo Router — in progress)
 ├── App.tsx              # Root component
-├── package.json         # Dependencies
-└── app.json             # Expo configuration
+├── index.ts             # Entry point
+├── app.json             # Expo configuration
+├── eas.json             # EAS build configuration
+├── .env.example         # Environment variable template
+└── package.json         # Dependencies
 ```
 
 ---
 
-## Available Scripts
+## 🤖 AI Features
 
-- `npm start` - Start Expo development server
-- `npm run android` - Run on Android emulator/device
-- `npm run ios` - Run on iOS simulator/device (macOS only)
-- `npm run web` - Run in web browser
+TrekBuddy uses the **Groq API** (`llama-3.3-70b-versatile`) for:
+- **AI Trip Planner** — Generates day-by-day itineraries based on your preferences
+- **AI Chatbot (Pondy AI)** — Answers questions about Puducherry: beaches, food, temples, transport, etc.
 
----
-
-## Environment Setup
-
-### For AI Features (Gemini API)
-
-1. Open the app and navigate to **Login Screen**
-2. Tap the **hamburger menu** (☰) on the left
-3. Go to **Settings** (if available) or configure API key in code
-4. Enter your Google Gemini API key
-
-**Note:** AI features will work with placeholder data if API key is not configured.
+Both features require a valid `EXPO_PUBLIC_GROQ_API_KEY` in your `.env` file.
 
 ---
 
-## Building for Production
+## 🏗️ Tech Stack
 
-### Android APK
+| Layer | Technology |
+|---|---|
+| Framework | React Native + Expo SDK 54 |
+| Language | TypeScript (strict) |
+| Navigation | React Navigation v7 |
+| Backend | Firebase (Firestore, Auth, Storage) |
+| AI | Groq API (llama-3.3-70b) |
+| Animations | React Native Reanimated v4 |
+| Icons | @expo/vector-icons |
+| Build | EAS (Expo Application Services) |
+
+---
+
+## 🏗️ Building for Production (EAS)
 
 ```bash
 # Install EAS CLI
 npm install -g eas-cli
 
-# Login to Expo
+# Login to Expo account
 eas login
 
-# Configure build
-eas build:configure
-
-# Build APK
+# Build Android APK
 eas build --platform android --profile preview
-```
 
-### iOS IPA
-
-```bash
+# Build iOS IPA (macOS + Apple Dev account required)
 eas build --platform ios --profile preview
 ```
 
 ---
 
-## Testing Checklist
+## 🐛 Troubleshooting
 
-- [ ] App launches successfully
-- [ ] Welcome screen displays correctly
-- [ ] Login/Signup forms work
-- [ ] All 12 categories are accessible
-- [ ] Category screens load with data
-- [ ] Trip planner generates itinerary
-- [ ] Transport screen shows bus routes
-- [ ] Emergency services are accessible
-- [ ] Language switching works
-- [ ] Theme toggle works (if implemented)
+| Issue | Solution |
+|---|---|
+| Metro not starting | `expo start -c` (clear cache) |
+| Dependencies failing | `npm install --legacy-peer-deps` |
+| Port in use | `expo start --port 8082` |
+| Expo Go not connecting | Use tunnel: `npm run start:tunnel` |
+| "Invalid Groq API key" | Check `.env` has correct `EXPO_PUBLIC_GROQ_API_KEY` |
 
 ---
 
-## Support & Documentation
+## 📖 Documentation
 
-- **Expo Documentation**: https://docs.expo.dev/
-- **React Native Documentation**: https://reactnative.dev/
-- **React Navigation**: https://reactnavigation.org/
-
----
-
-## Project Information
-
-- **Project Name:** TrekBuddy
-- **Version:** 1.0.0
-- **Platform:** Android & iOS
-- **Framework:** React Native with Expo
-- **Target Location:** Puducherry (Pondicherry), India
+- [Expo Docs](https://docs.expo.dev/)
+- [React Native Docs](https://reactnative.dev/)
+- [React Navigation](https://reactnavigation.org/)
+- [Groq API](https://console.groq.com/docs)
+- [Firebase](https://firebase.google.com/docs)
 
 ---
 
-## Quick Start (TL;DR)
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start development server
-npm start
-
-# 3. Scan QR code with Expo Go app on your phone
-# OR press 'a' for Android / 'i' for iOS / 'w' for web
-```
-
----
-
-**Happy Coding! 🚀**
+**TrekBuddy v1.0.0 | Puducherry, India 🏖️**
