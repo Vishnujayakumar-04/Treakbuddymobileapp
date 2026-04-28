@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TrekBuddy",
-    "slug": "trekbuddy",
+    "slug": "treakbuddy-mobileapp",
     "version": "1.0.0",
     "updates": {
       "enabled": false
@@ -37,7 +37,7 @@
         "measurementId": "G-ZJQ3YQ287N"
       },
       "eas": {
-        "projectId": "b3de3377-c21e-4fb1-a4cc-172333163838"
+        "projectId": "83b0b1ec-5adb-4d59-a021-145bfa6580c4"
       }
     },
     "plugins": [
